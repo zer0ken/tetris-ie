@@ -7,6 +7,7 @@
 html {
     background: #303245;
     color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 li {
@@ -72,7 +73,7 @@ nav li {
     background-color: white;
     color: #303245;
     box-shadow: 0 0 26px rgba(255, 255, 255, .6);
-    transition-duration: 0;
+    transition-duration: 5ms;
 }
 
 .on {
@@ -86,6 +87,7 @@ td {
     width: 26px;
     height: 26px;
     margin: 1px;
+    transition: background .2s ease;
 }
 
 td:not([class]) {
@@ -98,6 +100,10 @@ td[class="over"] {
 
 td[class="ghost"] {
     background: #8f93a8;
+}
+
+td[class="hidden"] {
+    background: transparent;
 }
 
 .i {
