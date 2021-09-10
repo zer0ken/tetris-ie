@@ -59,19 +59,20 @@ section#left li.gold {
 }
 
 nav li {
-    cursor: pointer;
     padding: 3px 6px;
     margin: 0 0 6px 6px;
 }
 
-nav li:hover {
-    background-color: white;
-    color: #303245;
+.button {
+    cursor: pointer;
+    transition: box-shadow .5s ease;
 }
 
 .button:hover {
     background-color: white;
     color: #303245;
+    box-shadow: 0 0 26px rgba(255, 255, 255, .6);
+    transition-duration: 0;
 }
 
 .on {
