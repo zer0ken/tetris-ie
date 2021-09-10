@@ -7,7 +7,7 @@
 html {
     background: #303245;
     color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 li {
@@ -66,13 +66,13 @@ nav li {
 
 .button {
     cursor: pointer;
-    transition: box-shadow .5s ease;
+    transition: box-shadow 0.5s ease;
 }
 
 .button:hover {
     background-color: white;
     color: #303245;
-    box-shadow: 0 0 26px rgba(255, 255, 255, .6);
+    box-shadow: 0 0 26px rgba(255, 255, 255, 0.6);
     transition-duration: 5ms;
 }
 
@@ -81,16 +81,27 @@ nav li {
     color: #303245;
 }
 
+.emoji {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+}
+
 /* TD tag colors */
+
+table#board td {
+    transition: none;
+}
 
 td {
     width: 26px;
     height: 26px;
     margin: 1px;
-    transition: background .2s ease;
+    transition: background 0.2s ease;
 }
 
-td:not([class]), td[class=""] {
+td:not([class]),
+td[class=""] {
     background: #575c78;
 }
 
@@ -127,7 +138,7 @@ td[class="hidden"] {
 }
 
 .s {
-    background: #ff952b;
+    background: #26ff00;
 }
 
 .z {
