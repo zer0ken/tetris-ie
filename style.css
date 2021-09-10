@@ -1,0 +1,115 @@
+* {
+    outline: 0;
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    background: #303245;
+    color: white;
+}
+
+li {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+section#left,
+section#center,
+section#right,
+nav {
+    float: left;
+    margin: 26px 0 0 26px;
+}
+
+h2 {
+    margin-bottom: 13px;
+}
+
+h3 {
+    margin-bottom: 26px;
+}
+
+table {
+    margin: 0 0 26px auto;
+}
+
+section#left {
+    text-align: right;
+    width: 220px;
+}
+
+section#left > div {
+    margin-bottom: 26px;
+}
+
+section#left li {
+    color: #7d7e8a;
+}
+
+section#left li.silver {
+    font-weight: bold;
+    color: silver;
+}
+
+section#left li.gold {
+    font-weight: bold;
+    color: gold;
+}
+
+nav li {
+    font-weight: bold;
+    cursor: pointer;
+    padding: 3px 6px;
+    margin-bottom: 6px;
+}
+
+nav li:hover {
+    background-color: white;
+    color: #303245;
+}
+
+/* TD tag colors */
+
+td {
+    background: #575c78;
+    width: 26px;
+    height: 26px;
+    margin: 1px;
+}
+
+.over {
+    background: #404561;
+}
+
+.ghost {
+    background: #8f93a8;
+}
+
+.i {
+    background: #47f6ff;
+}
+
+.o {
+    background: #eeff00;
+}
+
+.j {
+    background: #4f9eff;
+}
+
+.l {
+    background: #ff952b;
+}
+
+.t {
+    background: #e34fc5;
+}
+
+.s {
+    background: #ff952b;
+}
+
+.z {
+    background: #fa6666;
+}
