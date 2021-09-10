@@ -82,17 +82,20 @@ nav li:hover {
 /* TD tag colors */
 
 td {
-    background: #575c78;
     width: 26px;
     height: 26px;
     margin: 1px;
 }
 
-.over {
+td:not([class]) {
+    background: #575c78;
+}
+
+td[class="over"] {
     background: #404561;
 }
 
-.ghost {
+td[class="ghost"] {
     background: #8f93a8;
 }
 
