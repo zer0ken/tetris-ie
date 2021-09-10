@@ -90,7 +90,7 @@ td {
     transition: background .2s ease;
 }
 
-td:not([class]) {
+td:not([class]), td[class=""] {
     background: #575c78;
 }
 

@@ -17,15 +17,19 @@ function App() {
 
     window.requestAnimationFrame(this.animate.bind(this))
 
-    this.hold = new Figure(document.getElementById('hold'), new Tetrimino)
     this.board = new Board(this.gravity, this.ghost)
 }
 
 App.prototype.animate = function () {
     window.requestAnimationFrame(this.animate.bind(this))
+    this.board.animate()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+const DEAD = 0
+const PLAYING = 1
+const PAUSED = 2
 
 function Board(gravity, ghost) {
     this.config(gravity, ghost)
@@ -35,11 +39,51 @@ function Board(gravity, ghost) {
     for (let i = 0; i < table.length; i++) {
         this.board.push(nodeListToArray(table[i].children))
     }
+
+    this.state = PLAYING
+
+    this.hold = new Figure(document.getElementById('hold'), new Tetrimino)
+    this.queue = new Queue()
+
+    // this.falling = this.queue.shift()
 }
 
 Board.prototype.config = function (gravity, ghost) {
     this.gravity = gravity
     this.ghost = ghost
+    this.framePerTick = 60 / gravity
+    this.leftFrames = 0
+}
+
+Board.prototype.animate = function () {
+    if (this.state != PLAYING) {
+        return
+    }
+
+    this.leftFrames--
+    if (this.leftFrames <= 0) {
+        this.tick()
+        this.leftFrames += this.framePerTick
+    }
+}
+
+Board.prototype.tick = function () {
+    console.log('tick')
+    if (this.falling) {
+        this.softDrop()
+    }
+    else {
+        this.falling = this.queue.shift()
+        this.falling.draw(this.board)
+    }
+}
+
+Board.prototype.softDrop = function () {
+    if (this.falling && !this.falling.isObstructed(this.board, 0, 1, 0)) {
+        this.falling.erase(this.board)
+        this.falling.row++
+        this.falling.draw(this.board)
+    }
 }
 
 
@@ -78,14 +122,14 @@ function Queue() {
 }
 
 Queue.prototype.shift = function () {
-    const shifted = this.queue.shift()
-    const tetrimino = shifted.tetrimino
-    this.queue.push(shifted.setTetrimino(this.bag.choice()))
+    const tetrimino = this.queue[0].tetrimino
+    for (let i = 0; i < this.queue.length - 1; i++) {
+        this.queue[i].setTetrimino(this.queue[i + 1].tetrimino)
+    }
+    this.queue[this.queue.length - 1].setTetrimino(this.bag.choice())
     if (this.bag.length == 0) {
         this.bag = openSevenBag()
     }
-    this.queueDOM.removeChild(shifted)
-    this.queueDOM.appendChild(shifted)
     return tetrimino
 }
 
@@ -144,7 +188,7 @@ function block(row, col) {
 Block.prototype.isInBoard = function (board, rowOffset, colOffset) {
     const row = this.row + rowOffset
     const col = this.col + colOffset
-    return row >= 0 && row <= board.length && col >= 0 && col <= board[0].length
+    return row >= 0 && row < board.length && col >= 0 && col < board[0].length
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,25 +217,25 @@ Tetrimino.prototype.kicks = [
     }
 ]
 
-Tetrimino.isObstructed = function (board, rotationOffset, rowOffset, colOffset) {
-    const maxRotation = this.prototype.blocks.length
+Tetrimino.prototype.isObstructed = function (board, rotationOffset, rowOffset, colOffset) {
+    const maxRotation = this.blocks.length
     const rotation = ((this.rotation + rotationOffset) % maxRotation + maxRotation) % maxRotation
     const shape = this.blocks[rotation]
-    for (let i = 0; i < shape.blocks.length; i++) {
-        const block = shape.blocks[i];
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
         const row = this.row + block.row + rowOffset
         const col = this.col + block.col + colOffset
-        if (!block.isInBoard(board, this.row, this.col) || board[row][col].originalClass) {
+        if (!block.isInBoard(board, this.row + rowOffset, this.col + colOffset) || board[row][col].originalClass) {
             return true
         }
     }
     return false
 }
 
-Tetrimino.draw = function (board) {
+Tetrimino.prototype.draw = function (board) {
     const shape = this.blocks[this.rotation]
-    for (let i = 0; i < shape.blocks.length; i++) {
-        const block = shape.blocks[i];
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
         if (block.isInBoard(board, this.row, this.col)) {
             const row = this.row + block.row
             const col = this.col + block.col
@@ -202,15 +246,16 @@ Tetrimino.draw = function (board) {
     }
 }
 
-Tetrimino.erase = function (board) {
+Tetrimino.prototype.erase = function (board) {
     const shape = this.blocks[this.rotation]
-    for (let i = 0; i < shape.blocks.length; i++) {
-        const block = shape.blocks[i];
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
         if (block.isInBoard(board, this.row, this.col)) {
             const row = this.row + block.row
             const col = this.col + block.col
             const td = board[row][col]
             td.className = td.originalClass
+            td.originalClass = undefined
         }
     }
 }
