@@ -27,7 +27,8 @@ h2 {
 }
 
 h3 {
-    margin-bottom: 26px;
+    margin-bottom: 13px;
+    padding: 3px 6px;
 }
 
 table {
@@ -58,13 +59,22 @@ section#left li.gold {
 }
 
 nav li {
-    font-weight: bold;
     cursor: pointer;
     padding: 3px 6px;
-    margin-bottom: 6px;
+    margin: 0 0 6px 6px;
 }
 
 nav li:hover {
+    background-color: white;
+    color: #303245;
+}
+
+.button:hover {
+    background-color: white;
+    color: #303245;
+}
+
+.on {
     background-color: white;
     color: #303245;
 }
