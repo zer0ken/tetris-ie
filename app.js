@@ -54,16 +54,19 @@ App.prototype.animate = function () {
 
     const pressingKeys = Object.keys(this.pressing)
     for (let i = 0; i < pressingKeys.length; i++) {
-        this.pressing[pressingKeys[i]]++
-        if (this.pressing[pressingKeys[i]] >= this.board.das) {
-            this.pressing[pressingKeys[i]] -= Math.max(this.board.das / 10, 3)
-            this.control(KEYMAP[pressingKeys[i]])
+        const key = pressingKeys[i]
+        const keymap = KEYMAP[key]
+        if (keymap == CONTROLS.MOVE_LEFT || keymap == CONTROLS.MOVE_RIGHT || keymap == CONTROLS.SOFT_DROP) {
+            this.pressing[key]++
+            if (this.pressing[key] >= this.board.das) {
+                this.pressing[key] -= Math.max(this.board.das / 10, 3)
+                this.control(KEYMAP[key])
+            }
         }
     }
 }
 
 App.prototype.onKeyDown = function (e) {
-    console.log(e.keyCode)
     const control = KEYMAP[e.keyCode]
     if (control && !(e.keyCode in this.pressing)) {
         this.pressing[e.keyCode] = 0
@@ -74,34 +77,39 @@ App.prototype.onKeyDown = function (e) {
 }
 
 App.prototype.control = function (control) {
-    switch (control) {
-        case CONTROLS.MOVE_LEFT:
-            this.board.move(-1)
-            break
-        case CONTROLS.MOVE_RIGHT:
-            this.board.move(1)
-            break
-        case CONTROLS.SOFT_DROP:
-            this.board.softDrop()
-            break
-        case CONTROLS.HARD_DROP:
-            this.board.hardDrop()
-            break
-        case CONTROLS.ROTATE_LEFT:
-            this.board.rotate(-1)
-            break
-        case CONTROLS.ROTATE_RIGHT:
-            this.board.rotate(1)
-            break
-        default:
-            return false
+    if (this.board.state == STATE.PLAYING) {
+        switch (control) {
+            case CONTROLS.MOVE_LEFT:
+                this.board.move(-1)
+                break
+            case CONTROLS.MOVE_RIGHT:
+                this.board.move(1)
+                break
+            case CONTROLS.SOFT_DROP:
+                this.board.softDrop()
+                break
+            case CONTROLS.HARD_DROP:
+                this.board.hardDrop()
+                break
+            case CONTROLS.ROTATE_LEFT:
+                this.board.rotate(-1)
+                break
+            case CONTROLS.ROTATE_RIGHT:
+                this.board.rotate(1)
+                break
+            case CONTROLS.HOLD:
+                this.board.hold()
+                break
+            default:
+                return false
+        }
+        return true
     }
-    return true
+    return false
 }
 
 App.prototype.onKeyUp = function (e) {
     delete this.pressing[e.keyCode]
-    console.log(this.pressing)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,26 +123,37 @@ const STATE = {
 const FPS = 60
 
 const MIN_DAS = 10
+const BOARD_ROW = 23
+const BOARD_COL = 10
 
 function Board(gravity, ghost) {
     this.config(gravity, ghost)
 
     this.board = []
     const table = nodeListToArray(document.getElementById('board').querySelectorAll('tr'))
-    for (let i = 0; i < table.length; i++) {
-        this.board.push(nodeListToArray(table[i].children))
+    for (let i = 0; i < BOARD_ROW; i++) {
+        const row = nodeListToArray(table[i].children)
+        row.blanks = BOARD_COL
+        for (let col = 0; col < BOARD_COL; col++) {
+            row[col].originalClass = row[col].className ? row[col].className : ''
+            row[col].className = row[col].className || ''
+        }
+        this.board.push(row)
     }
 
     this.state = STATE.PLAYING
     this.leftFrames = 0
 
-    this.hold = new Figure(document.getElementById('hold'), new Tetrimino)
+    this.holded = new Figure(document.getElementById('hold'), new Tetrimino)
+    this.holdSwapped = false
     this.queue = new Queue()
+
+    this.ghostChanged
 }
 
 Board.prototype.config = function (gravity, ghost) {
     this.gravity = gravity
-    this.ghost = ghost
+    this.ghostMode = ghost
     this.framePerTick = FPS / gravity
     this.das = Math.max(this.framePerTick / 3, MIN_DAS)
 }
@@ -157,6 +176,10 @@ Board.prototype.tick = function () {
     }
     if (!this.falling) {
         this.falling = this.queue.shift()
+        if (this.ghostMode) {
+            this.removeGhost()
+            this.updateGhost()
+        }
         if (this.falling.isObstructed(this.board, 0, 0, 0)) {
             this.state = STATE.DEAD
             return
@@ -176,9 +199,71 @@ Board.prototype.drop = function () {
     return false
 }
 
+
 Board.prototype.land = function () {
-    this.falling.land(this.board)
+    const shape = this.falling.blocks[this.falling.rotation]
+    let over = false
+    const cleared = []
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
+        const row = this.falling.row + block.row
+        const col = this.falling.col + block.col
+        if (--this.board[row].blanks == 0) {
+            cleared.push(row)
+        }
+        const td = this.board[row][col]
+        over = over || row < 3
+        td.blocked = true
+    }
+    for (let i = 0; i < cleared.length; i++) {
+        for (let row = cleared[i]; row > 0; row--) {
+            const rowAbove = this.board[row - 1]
+            const clearedRow = this.board[row]
+            clearedRow.blanks = rowAbove.blanks
+            for (let col = 0; col < BOARD_COL; col++) {
+                const tdAbove = rowAbove[col]
+                const td = clearedRow[col]
+                if (tdAbove.blocked) {
+                    td.blocked = tdAbove.blocked
+                    delete tdAbove.blocked
+                } else {
+                    delete td.blocked
+                }
+                td.className = row == 3 ? td.originalClass : tdAbove.className
+                tdAbove.className = tdAbove.originalClass
+            }
+        }
+    }
+    if (over) {
+        this.state = STATE.DEAD
+    }
     this.falling = null
+    this.holdSwapped = false
+}
+
+Board.prototype.removeGhost = function () {
+    if (this.ghost) {
+        this.ghost.erase(this.board)
+        this.ghost = null
+    }
+}
+
+Board.prototype.updateGhost = function () {
+    if (!this.ghostMode) {
+        return
+    }
+    if (!this.ghost) {
+        this.ghost = new this.falling.constructor
+        this.ghost.type = GHOST
+    }
+    this.ghost.erase(this.board)
+    this.ghost.row = this.falling.row
+    this.ghost.col = this.falling.col
+    this.ghost.rotation = this.falling.rotation
+    while (!this.ghost.isObstructed(this.board, 0, 1, 0)) {
+        this.ghost.row++
+    }
+    this.ghost.draw(this.board)
 }
 
 Board.prototype.softDrop = function () {
@@ -191,7 +276,16 @@ Board.prototype.softDrop = function () {
 }
 
 Board.prototype.hardDrop = function () {
-
+    const isMovable = !this.falling.isObstructed(this.board, 0, 1, 0)
+    if (isMovable) {
+        this.falling.erase(this.board)
+        do {
+            this.falling.row++
+        } while (!this.falling.isObstructed(this.board, 0, 1, 0))
+        this.falling.draw(this.board)
+    }
+    this.land()
+    this.leftFrames = 0
 }
 
 Board.prototype.move = function (delta) {
@@ -204,6 +298,26 @@ Board.prototype.move = function (delta) {
 
 Board.prototype.rotate = function (delta) {
     this.falling.rotate(this.board, delta)
+}
+
+Board.prototype.hold = function () {
+    if (this.holdSwapped) {
+        return
+    }
+    this.falling.erase(this.board)
+    const falling = this.falling
+    if (this.holded.tetrimino.type != GHOST) {
+        this.falling = new this.holded.tetrimino.constructor
+        this.falling.draw(this.board)
+        this.removeGhost()
+        this.updateGhost()
+        this.leftFrames = this.framePerTick
+    } else {
+        this.falling = null
+        this.leftFrames = 0
+    }
+    this.holded.setTetrimino(falling)
+    this.holdSwapped = true
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,17 +390,13 @@ Figure.prototype.setTetrimino = function (tetrimino) {
         for (let i = 0; i < shape.length; i++) {
             const block = shape[i];
             const td = this.table[block.row][block.col]
-            if (td.originalClass) {
-                td.className = td.originalClass
-                td.originalClass = undefined
-            }
+            td.className = td.originalClass
         }
     }
     const shape = tetrimino.blocks[0]
     for (let i = 0; i < shape.length; i++) {
         const block = shape[i];
         const td = this.table[block.row][block.col]
-        td.originalClass = td.className
         td.className = tetrimino.type
     }
     this.tetrimino = tetrimino
@@ -305,8 +415,7 @@ function block(row, col) {
 }
 
 function isInBoard(board, row, col) {
-    console.log(board)
-    return row >= 0 && row < board.length && col >= 0 && col < board[0].length
+    return row >= 0 && row < BOARD_ROW && col >= 0 && col < BOARD_COL
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,21 +426,22 @@ function Tetrimino(row, col) {
     this.rotation = 0
 }
 
-Tetrimino.prototype.type = 'ghost'
+const GHOST = 'ghost'
+Tetrimino.prototype.type = GHOST
 Tetrimino.prototype.blocks = [[block(1, 0), block(0, 1), block(1, 2), block(0, 3)]]
 Tetrimino.prototype.kicks = [
     {   // from 0
-        '1': [{ row: -1, col: 0 }, { row: -1, col: -1 }, { row: 0, col: 2 }, { row: -1, col: 2 }],
-        '-1': [{ row: 1, col: 0 }, { row: 1, col: -1 }, { row: 0, col: 2 }, { row: 1, col: 2 }]
+        '1': [{ col: -1, row: 0 }, { col: -1, row: -1 }, { col: 0, row: 2 }, { col: -1, row: 2 }],
+        '-1': [{ col: 1, row: 0 }, { col: 1, row: -1 }, { col: 0, row: 2 }, { col: 1, row: 2 }]
     }, {// from 1
-        '1': [{ row: 1, col: 0 }, { row: 1, col: 1 }, { row: 0, col: -2 }, { row: 1, col: -2 }],
-        '-1': [{ row: 1, col: 0 }, { row: 1, col: 1 }, { row: 0, col: -2 }, { row: 1, col: -2 }]
+        '1': [{ col: 1, row: 0 }, { col: 1, row: 1 }, { col: 0, row: -2 }, { col: 1, row: -2 }],
+        '-1': [{ col: 1, row: 0 }, { col: 1, row: 1 }, { col: 0, row: -2 }, { col: 1, row: -2 }]
     }, {// from 2
-        '1': [{ row: 1, col: 0 }, { row: 1, col: 1 }, { row: 0, col: 2 }, { row: 1, col: 2 }],
-        '-1': [{ row: -1, col: 0 }, { row: -1, col: -1 }, { row: 0, col: 2 }, { row: -1, col: 2 }]
+        '1': [{ col: 1, row: 0 }, { col: 1, row: 1 }, { col: 0, row: 2 }, { col: 1, row: 2 }],
+        '-1': [{ col: -1, row: 0 }, { col: -1, row: -1 }, { col: 0, row: 2 }, { col: -1, row: 2 }]
     }, {// from 3
-        '1': [{ row: -1, col: 0 }, { row: -1, col: 1 }, { row: 0, col: -2 }, { row: -1, col: -2 }],
-        '-1': [{ row: -1, col: 0 }, { row: -1, col: 1 }, { row: 0, col: -2 }, { row: -1, col: -2 }]
+        '1': [{ col: -1, row: 0 }, { col: -1, row: 1 }, { col: 0, row: -2 }, { col: -1, row: -2 }],
+        '-1': [{ col: -1, row: 0 }, { col: -1, row: 1 }, { col: 0, row: -2 }, { col: -1, row: -2 }]
     }
 ]
 
@@ -341,7 +451,6 @@ Tetrimino.prototype.isObstructed = function (board, rotationOffset, rowOffset, c
     const shape = this.blocks[rotation]
     for (let i = 0; i < shape.length; i++) {
         const block = shape[i];
-        console.log(block)
         const row = this.row + block.row + rowOffset
         const col = this.col + block.col + colOffset
         if (!isInBoard(board, row, col) || board[row][col].blocked) {
@@ -353,10 +462,10 @@ Tetrimino.prototype.isObstructed = function (board, rotationOffset, rowOffset, c
 
 Tetrimino.prototype.rotate = function (board, delta) {
     let failed = this.isObstructed(board, delta, 0, 0)
-    const kicks = this.kicks[this.rotation][delta]
     if (!failed) {
         this.erase(board)
-    } else if (kicks) {
+    } else if (this.kicks[this.rotation]) {
+        const kicks = this.kicks[this.rotation][delta]
         for (let i = 0; i < kicks.length; i++) {
             const kick = kicks[i];
             if (!this.isObstructed(board, delta, kick.row, kick.col)) {
@@ -364,6 +473,7 @@ Tetrimino.prototype.rotate = function (board, delta) {
                 this.row += kick.row
                 this.col += kick.col
                 failed = false
+                console.log(i, kick)
                 break
             }
         }
@@ -372,9 +482,8 @@ Tetrimino.prototype.rotate = function (board, delta) {
         const maxRotation = this.blocks.length
         this.rotation = ((this.rotation + delta) % maxRotation + maxRotation) % maxRotation
         this.draw(board)
-        return true
     }
-    return false
+    return !failed
 }
 
 Tetrimino.prototype.draw = function (board) {
@@ -383,9 +492,8 @@ Tetrimino.prototype.draw = function (board) {
         const block = shape[i];
         const row = this.row + block.row
         const col = this.col + block.col
-        if (isInBoard(board, row, col)) {
-            const td = board[row][col]
-            td.originalClass = td.className
+        const td = board[row][col]
+        if (td.className != this.type) {
             td.className = this.type
         }
     }
@@ -397,37 +505,39 @@ Tetrimino.prototype.erase = function (board) {
         const block = shape[i];
         const row = this.row + block.row
         const col = this.col + block.col
-        if (isInBoard(board, row, col)) {
-            const row = this.row + block.row
-            const col = this.col + block.col
-            const td = board[row][col]
+        const td = board[row][col]
+        if (td.className == this.type) {
             td.className = td.originalClass
-            td.originalClass = undefined
-            td.blocked = false
         }
     }
 }
 
 Tetrimino.prototype.land = function (board) {
     const shape = this.blocks[this.rotation]
+    let over = false
     for (let i = 0; i < shape.length; i++) {
         const block = shape[i];
         const row = this.row + block.row
         const col = this.col + block.col
         if (isInBoard(board, row, col)) {
+            board[row].blanks--
             const td = board[row][col]
-            td.originalClass = undefined
+            if (td.originalClass) {
+                over = over || td.originalClass == 'over'
+                delete td.originalClass
+            }
             td.className = this.type
             td.blocked = true
         }
     }
+    return over
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 function IMino() { }
-
 IMino.prototype = new Tetrimino(0, 3)
+IMino.prototype.constructor = IMino
 IMino.prototype.type = 'i'
 IMino.prototype.blocks = [
     [block(1, 0), block(1, 1), block(1, 2), block(1, 3)],
@@ -437,22 +547,23 @@ IMino.prototype.blocks = [
 ]
 IMino.prototype.kicks = [
     {   // from 0
-        '1': [{ row: 1, col: 0 }, { row: 1, col: -1 }, { row: 0, col: 2 }, { row: 1, col: 2 }],
-        '-1': [{ row: -1, col: 0 }, { row: 2, col: 0 }, { row: -1, col: -2 }, { row: 2, col: -1 }]
+        '1': [{ col: 1, row: 0 }, { col: 1, row: -1 }, { col: 0, row: 2 }, { col: 1, row: 2 }],
+        '-1': [{ col: -1, row: 0 }, { col: 2, row: 0 }, { col: -1, row: -2 }, { col: 2, row: -1 }]
     }, {// from 1
-        '1': [{ row: -1, col: 0 }, { row: 2, col: 0 }, { row: -1, col: -2 }, { row: 2, col: 1 }],
-        '-1': [{ row: 2, col: 0 }, { row: -1, col: 0 }, { row: 2, col: -1 }, { row: -1, col: 2 }]
+        '1': [{ col: -1, row: 0 }, { col: 2, row: 0 }, { col: -1, row: -2 }, { col: 2, row: 1 }],
+        '-1': [{ col: 2, row: 0 }, { col: -1, row: 0 }, { col: 2, row: -1 }, { col: -1, row: 2 }]
     }, {// from 2
-        '1': [{ row: 2, col: 0 }, { row: -1, col: 0 }, { row: 2, col: -1 }, { row: -1, col: 2 }],
-        '-1': [{ row: 1, col: 0 }, { row: -2, col: 0 }, { row: 1, col: 2 }, { row: -2, col: -1 }]
+        '1': [{ col: 2, row: 0 }, { col: -1, row: 0 }, { col: 2, row: -1 }, { col: -1, row: 2 }],
+        '-1': [{ col: 1, row: 0 }, { col: -2, row: 0 }, { col: 1, row: 2 }, { col: -2, row: -1 }]
     }, {// from 3
-        '1': [{ row: 1, col: 0 }, { row: -2, col: 0 }, { row: 1, col: 2 }, { row: -2, col: -1 }],
-        '-1': [{ row: -2, col: 0 }, { row: 1, col: 0 }, { row: -2, col: 1 }, { row: 1, col: -2 }]
+        '1': [{ col: 1, row: 0 }, { col: -2, row: 0 }, { col: 1, row: 2 }, { col: -2, row: -1 }],
+        '-1': [{ col: -2, row: 0 }, { col: 1, row: 0 }, { col: -2, row: 1 }, { col: 1, row: -2 }]
     }
 ]
 
 function JMino() { }
 JMino.prototype = new Tetrimino(0, 3)
+JMino.prototype.constructor = JMino
 JMino.prototype.type = 'j'
 JMino.prototype.blocks = [
     [block(0, 0), block(1, 0), block(1, 1), block(1, 2)],
@@ -463,6 +574,7 @@ JMino.prototype.blocks = [
 
 function LMino() { }
 LMino.prototype = new Tetrimino(0, 3)
+LMino.prototype.constructor = LMino
 LMino.prototype.type = 'l'
 LMino.prototype.blocks = [
     [block(0, 2), block(1, 0), block(1, 1), block(1, 2)],
@@ -472,12 +584,14 @@ LMino.prototype.blocks = [
 ]
 function OMino() { }
 OMino.prototype = new Tetrimino(0, 4)
+OMino.prototype.constructor = OMino
 OMino.prototype.type = 'o'
 OMino.prototype.blocks = [[block(0, 0), block(0, 1), block(1, 0), block(1, 1)]]
 OMino.prototype.kicks = []
 
 function SMino() { }
 SMino.prototype = new Tetrimino(0, 3)
+SMino.prototype.constructor = SMino
 SMino.prototype.type = 's'
 SMino.prototype.blocks = [
     [block(0, 1), block(0, 2), block(1, 0), block(1, 1)],
@@ -488,6 +602,7 @@ SMino.prototype.blocks = [
 
 function TMino() { }
 TMino.prototype = new Tetrimino(0, 3)
+TMino.prototype.constructor = TMino
 TMino.prototype.type = 't'
 TMino.prototype.blocks = [
     [block(0, 1), block(1, 0), block(1, 1), block(1, 2)],
@@ -498,6 +613,7 @@ TMino.prototype.blocks = [
 
 function ZMino() { }
 ZMino.prototype = new Tetrimino(0, 3)
+ZMino.prototype.constructor = ZMino
 ZMino.prototype.type = 'z'
 ZMino.prototype.blocks = [
     [block(0, 0), block(0, 1), block(1, 1), block(1, 2)],
