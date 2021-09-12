@@ -249,6 +249,7 @@ Board.prototype.init = function () {
         this.state = BOARD_STATE.PLAYING
     }
 
+    this.blocks = 0
     this.board = []
     for (let i = 0; i < BOARD_ROW; i++) {
         const row = this.boardTable[i].children
@@ -365,7 +366,9 @@ Board.prototype.land = function () {
     this.holdSwapped = false
 
     this.addScore(SCORE_TYPE.DROP)
+    this.blocks += 4
     if (cleared.length) {
+        this.blocks -= cleared.length * BOARD_COL
         const scoreData = LINE_SCORE[cleared.length]
         scoreData.score *= this.gravity
         const score = this.addScore(scoreData)
@@ -377,6 +380,11 @@ Board.prototype.land = function () {
         } else {
             this.addScore(this.combo)
             this.combo.score += score
+        }
+        if (this.blocks == 0) {
+            const scoreData = SCORE_TYPE.PERFECT_CLEAR
+            scoreData.score *= this.gravity
+            this.addScore(SCORE_TYPE.PERFECT_CLEAR)
         }
     } else {
         this.combo = null
