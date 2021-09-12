@@ -57,10 +57,18 @@ function App() {
     this.board = new Board(this.gravity, this.ghost)
 
     this.pauseBTN = document.getElementById('pause')
-    this.pauseBTN.onclick = this.pause.bind(this)
+    this.pauseBTN.onclick = this.togglePause.bind(this)
 
     this.resetBTN = document.getElementById('reset')
     this.resetBTN.onclick = this.reset.bind(this)
+
+    this.gravityBTN = document.getElementById('gravity')
+    this.gravityBTN.onclick = this.setGravity.bind(this)
+    this.gravityDisplay = this.gravityBTN.querySelector('.value')
+
+    this.ghostBTN = document.getElementById('ghost')
+    this.ghostBTN.onclick = this.toggleGhost.bind(this)
+    this.ghostDisplay = this.ghostBTN.querySelector('.value')
 
     this.pressing = {}
 }
@@ -98,7 +106,7 @@ App.prototype.onKeyDown = function (e) {
 App.prototype.control = function (control) {
     switch (control) {
         case CONTROLS.PAUSE:
-            this.pause()
+            this.togglePause()
             break
         case CONTROLS.RESET:
             this.reset()
@@ -132,7 +140,6 @@ App.prototype.control = function (control) {
         }
         return true
     }
-
     return false
 }
 
@@ -140,7 +147,7 @@ App.prototype.onKeyUp = function (e) {
     delete this.pressing[e.keyCode]
 }
 
-App.prototype.pause = function () {
+App.prototype.togglePause = function () {
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.board.state = BOARD_STATE.PAUSED
         this.pauseBTN.className = BUTTON_STATE.ON
@@ -154,8 +161,29 @@ App.prototype.reset = function () {
     if (this.board.state != BOARD_STATE.PLAYING) {
         this.board.init()
     } else {
-        this.pause()
+        this.togglePause()
     }
+}
+
+App.prototype.setGravity = function () {
+    if (this.board.state == BOARD_STATE.PLAYING) {
+        this.togglePause()
+    }
+    const gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).'))
+    if (gravity != NaN && gravity >= 1 && gravity <= 20) {
+        this.gravity = gravity
+        this.board.config(gravity, this.ghost)
+        this.gravityDisplay.textContent = gravity
+    }
+}
+
+App.prototype.toggleGhost = function () {
+    if (this.board.state == BOARD_STATE.PLAYING) {
+        this.togglePause()
+    }
+    this.ghost = !this.ghost
+    this.ghostDisplay.textContent = this.ghost ? 'ON' : 'OFF'
+    this.board.config(this.gravity, this.ghost)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -244,10 +272,13 @@ Board.prototype.init = function () {
 }
 
 Board.prototype.config = function (gravity, ghost) {
-    this.gravity = gravity
+    if (gravity) {
+        this.gravity = gravity
+        this.framePerTick = FPS / gravity
+        this.das = Math.max(this.framePerTick / 3, MIN_DAS)
+    }
     this.ghostMode = ghost
-    this.framePerTick = FPS / gravity
-    this.das = Math.max(this.framePerTick / 3, MIN_DAS)
+    this.updateGhost()
 }
 
 Board.prototype.animate = function () {
@@ -333,7 +364,9 @@ Board.prototype.land = function () {
 
     this.addScore(SCORE_TYPE.DROP)
     if (cleared.length) {
-        const score = this.addScore(LINE_SCORE[cleared.length])
+        const scoreData = LINE_SCORE[cleared.length]
+        scoreData.score *= this.gravity
+        const score = this.addScore(scoreData)
         if (!this.combo) {
             this.combo = {
                 score: score,
@@ -364,7 +397,6 @@ Board.prototype.addScore = function (scoreData /* { score: Number[, description:
         this.score += scoreData.score
         this.scoreDisplay.textContent = this.score
     }
-
     if (scoreData.description) {
         for (let i = this.scoreList.length - 1; i > 0; i--) {
             const liAbove = this.scoreList[i - 1]
@@ -377,7 +409,6 @@ Board.prototype.addScore = function (scoreData /* { score: Number[, description:
         li.textContent = scoreData.description + scoreData.score
         li.className = scoreData.type ? scoreData.type : ''
     }
-
     return scoreData.score
 }
 
@@ -391,6 +422,9 @@ Board.prototype.removeGhost = function () {
 Board.prototype.updateGhost = function () {
     if (!this.ghostMode) {
         this.removeGhost()
+        return
+    }
+    if (!this.falling) {
         return
     }
     if (!this.ghost) {
