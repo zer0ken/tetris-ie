@@ -79,6 +79,10 @@ section#left li.aqua {
     color: aqua;
 }
 
+nav {
+    min-width: 120px;
+}
+
 nav li {
     padding: 3px 6px;
     margin: 0 0 6px 6px;
