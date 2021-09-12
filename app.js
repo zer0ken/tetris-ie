@@ -169,7 +169,7 @@ App.prototype.setGravity = function () {
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.togglePause()
     }
-    const gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).',))
+    const gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).', 1))
     if (gravity != NaN && gravity >= 1 && gravity <= 20) {
         this.gravity = gravity
         this.board.config(gravity, this.ghost)
@@ -602,7 +602,7 @@ function block(row, col) {
     return { row: row, col: col }
 }
 
-function isInBoard(board, row, col) {
+function isInBoard(row, col) {
     return row >= 0 && row < BOARD_ROW && col >= 0 && col < BOARD_COL
 }
 function Tetrimino(row, col) {
@@ -616,17 +616,17 @@ Tetrimino.prototype.type = GHOST
 Tetrimino.prototype.blocks = [[block(1, 0), block(0, 1), block(1, 2), block(0, 3)]]
 Tetrimino.prototype.kicks = [
     {   // from 0
-        '1': [{ col: -1, row: 0 }, { col: -1, row: -1 }, { col: 0, row: 2 }, { col: -1, row: 2 }],
-        '-1': [{ col: 1, row: 0 }, { col: 1, row: -1 }, { col: 0, row: 2 }, { col: 1, row: 2 }]
+        '1': [block(0, -1), block(-1, -1), block(2, 0), block(2, -1)],
+        '-1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)]
     }, {// from 1
-        '1': [{ col: 1, row: 0 }, { col: 1, row: 1 }, { col: 0, row: -2 }, { col: 1, row: -2 }],
-        '-1': [{ col: 1, row: 0 }, { col: 1, row: 1 }, { col: 0, row: -2 }, { col: 1, row: -2 }]
+        '1': [block(0, 1), block(1, 1), block(-2, 0), block(-2, 1)],
+        '-1': [block(0, 1), block(1, 1), block(-2, 0), block(-2, 1)]
     }, {// from 2
-        '1': [{ col: 1, row: 0 }, { col: 1, row: 1 }, { col: 0, row: 2 }, { col: 1, row: 2 }],
-        '-1': [{ col: -1, row: 0 }, { col: -1, row: -1 }, { col: 0, row: 2 }, { col: -1, row: 2 }]
+        '1': [block(0, 1), block(1, 1), block(2, 0), block(2, 1)],
+        '-1': [block(0, -1), block(-1, -1), block(2, 0), block(2, -1)]
     }, {// from 3
-        '1': [{ col: -1, row: 0 }, { col: -1, row: 1 }, { col: 0, row: -2 }, { col: -1, row: -2 }],
-        '-1': [{ col: -1, row: 0 }, { col: -1, row: 1 }, { col: 0, row: -2 }, { col: -1, row: -2 }]
+        '1': [block(0, -1), block(1, -1), block(-2, 0), block(-2, -1)],
+        '-1': [block(0, -1), block(1, -1), block(-2, 0), block(-2, -1)]
     }
 ]
 
@@ -638,7 +638,7 @@ Tetrimino.prototype.isObstructed = function (board, rotationOffset, rowOffset, c
         const block = shape[i];
         const row = this.row + block.row + rowOffset
         const col = this.col + block.col + colOffset
-        if (!isInBoard(board, row, col) || board[row][col].blocked) {
+        if (!isInBoard(row, col) || board[row][col].blocked) {
             return true
         }
     }
@@ -707,17 +707,17 @@ IMino.prototype.blocks = [
 ]
 IMino.prototype.kicks = [
     {   // from 0
-        '1': [{ col: 1, row: 0 }, { col: 1, row: -1 }, { col: 0, row: 2 }, { col: 1, row: 2 }],
-        '-1': [{ col: -1, row: 0 }, { col: 2, row: 0 }, { col: -1, row: -2 }, { col: 2, row: -1 }]
+        '1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)],
+        '-1': [block(0, -1), block(0, 2), block(-2, -1), block(-1, 2)]
     }, {// from 1
-        '1': [{ col: -1, row: 0 }, { col: 2, row: 0 }, { col: -1, row: -2 }, { col: 2, row: 1 }],
-        '-1': [{ col: 2, row: 0 }, { col: -1, row: 0 }, { col: 2, row: -1 }, { col: -1, row: 2 }]
+        '1': [block(0, -1), block(0, 2), block(-2, -1), block(1, 2)],
+        '-1': [block(0, 2), block(0, -1), block(-1, 2), block(2, -1)]
     }, {// from 2
-        '1': [{ col: 2, row: 0 }, { col: -1, row: 0 }, { col: 2, row: -1 }, { col: -1, row: 2 }],
-        '-1': [{ col: 1, row: 0 }, { col: -2, row: 0 }, { col: 1, row: 2 }, { col: -2, row: -1 }]
+        '1': [block(0, 2), block(0, -1), block(-1, 2), block(2, -1)],
+        '-1': [block(0, 1), block(0, -2), block(2, 1), block(-1, -2)]
     }, {// from 3
-        '1': [{ col: 1, row: 0 }, { col: -2, row: 0 }, { col: 1, row: 2 }, { col: -2, row: -1 }],
-        '-1': [{ col: -2, row: 0 }, { col: 1, row: 0 }, { col: -2, row: 1 }, { col: 1, row: -2 }]
+        '1': [block(0, 1), block(0, -2), block(2, 1), block(-1, -2)],
+        '-1': [block(0, -2), block(0, 1), block(1, -2), block(-2, 1)]
     }
 ]
 
