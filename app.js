@@ -169,7 +169,7 @@ App.prototype.setGravity = function () {
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.togglePause()
     }
-    const gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).'))
+    const gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).', 1))
     if (gravity != NaN && gravity >= 1 && gravity <= 20) {
         this.gravity = gravity
         this.board.config(gravity, this.ghost)
