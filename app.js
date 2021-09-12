@@ -82,7 +82,9 @@ App.prototype.animate = function () {
         for (let i = 0; i < pressingKeys.length; i++) {
             const key = pressingKeys[i]
             const keymap = KEYMAP[key]
-            if (keymap == CONTROLS.MOVE_LEFT || keymap == CONTROLS.MOVE_RIGHT || keymap == CONTROLS.SOFT_DROP) {
+            if (keymap == CONTROLS.MOVE_LEFT
+                || keymap == CONTROLS.MOVE_RIGHT
+                || keymap == CONTROLS.SOFT_DROP) {
                 this.pressing[key]++
                 if (this.pressing[key] >= this.board.das) {
                     this.pressing[key] -= Math.max(this.board.das / DAS_SCALE, 1)
@@ -392,7 +394,7 @@ Board.prototype.initScore = function () {
     this.combo = null
 }
 
-Board.prototype.addScore = function (scoreData /* { score: Number[, description: String]} */) {
+Board.prototype.addScore = function (scoreData) {
     if (scoreData.score) {
         this.score += scoreData.score
         this.scoreDisplay.textContent = this.score
