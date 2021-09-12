@@ -4,6 +4,10 @@
     margin: 0;
 }
 
+*::selection {
+    background: transparent;
+}
+
 html {
     background: #303245;
     color: white;
@@ -40,9 +44,11 @@ table {
     margin: 0 0 26px auto;
 }
 
-section#left h3 {
-    
-    padding: 0;
+#score {
+    background: white;
+    color: #303245;
+    display: inline-block;
+    min-width: 112px;
 }
 
 section#left {
