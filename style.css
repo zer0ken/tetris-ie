@@ -90,14 +90,22 @@ nav li {
 
 .button {
     cursor: pointer;
-    transition: box-shadow 0.5s ease;
+
+    -webkit-transition: box-shadow 0.5s ease;
+         -o-transition: box-shadow 0.5s ease;
+        -ms-transition: box-shadow 0.5s ease;
+            transition: box-shadow 0.5s ease;
 }
 
 .button:hover {
     background-color: white;
     color: #303245;
     box-shadow: 0 0 26px rgba(255, 255, 255, 0.6);
-    transition-duration: 5ms;
+
+    -webkit-transition-duration: 5ms;
+         -o-transition-duration: 5ms;
+        -ms-transition-duration: 5ms;
+            transition-duration: 5ms;
 }
 
 .on {
@@ -114,14 +122,21 @@ nav li {
 /* TD tag colors */
 
 table#board td {
-    transition: none;
+    -webkit-transition: none;
+         -o-transition: none;
+        -ms-transition: none;
+            transition: none;
 }
 
 td {
     width: 26px;
     height: 26px;
     margin: 1px;
-    transition: background 0.2s ease;
+    
+    -webkit-transition: background 0.2s ease;
+         -o-transition: background 0.2s ease;
+        -ms-transition: background 0.2s ease;
+            transition: background 0.2s ease;
 }
 
 td {
