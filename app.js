@@ -4,15 +4,35 @@ window.onload = function () {
 
 var console = window.console || { log: function () { } }
 
+function isElement(obj) {
+    try {
+        //Using W3 DOM2 (works for FF, Opera and Chrome)
+        return obj instanceof HTMLElement;
+    }
+    catch (e) {
+        //Browsers not supporting W3 DOM2 don't have HTMLElement and
+        //an exception is thrown and we end up here. Testing some
+        //properties that all elements have (works on IE7)
+        return (typeof obj === "object") &&
+            (obj.nodeType === 1) && (typeof obj.style === "object") &&
+            (typeof obj.ownerDocument === "object");
+    }
+}
+
 function nodeListToArray(nodeList) {
-    return Array.prototype.slice.call(nodeList)
+    var children = []
+    for (var i = 0; i < nodeList.length; i++) {
+        var node = nodeList[i];
+        if (isElement(node)) {
+            children.push(node)
+        }
+    }
+    return children
 }
 
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== 'function') {
-            // ECMAScript 5 내부 IsCallable 함수와
-            // 가능한 가장 가까운 것
             throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
         }
 
@@ -27,7 +47,6 @@ if (!Function.prototype.bind) {
             };
 
         if (this.prototype) {
-            // Function.prototype은 prototype 속성이 없음
             fNOP.prototype = this.prototype;
         }
         fBound.prototype = new fNOP();
@@ -264,14 +283,18 @@ var LINE_SCORE = {
 function Board(gravity, ghost) {
     this.config(gravity, ghost)
 
-    this.boardTable = document.getElementById('board').children[0].children
+    this.boardTable = nodeListToArray(
+        nodeListToArray(
+            document.getElementById('board').childNodes
+        )[0].childNodes
+    )
 
     this.state = BOARD_STATE.PLAYING
     this.queue = new Queue()
     this.holded = new Figure(document.getElementById('hold'))
 
     this.scoreDisplay = document.getElementById('score')
-    this.scoreList = document.getElementById('score-list').children
+    this.scoreList = nodeListToArray(document.getElementById('score-list').childNodes)
 
     this.init()
 }
@@ -290,7 +313,7 @@ Board.prototype.init = function () {
     this.blocks = 0
     this.board = []
     for (var i = 0; i < BOARD_ROW; i++) {
-        var row = this.boardTable[i].children
+        var row = nodeListToArray(this.boardTable[i].childNodes)
         row.blanks = BOARD_COL
         for (var col = 0; col < BOARD_COL; col++) {
             var td = row[col]
@@ -575,7 +598,7 @@ function openSevenBag() {
 }
 
 function Queue() {
-    this.queueTables = document.getElementById('queue').children
+    this.queueTables = nodeListToArray(document.getElementById('queue').childNodes)
     this.init()
 }
 
@@ -607,10 +630,10 @@ Queue.prototype.shift = function () {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 function Figure(table, tetrimino) {
-    var trs = table.children[0].children
+    var trs = nodeListToArray(nodeListToArray(table.childNodes)[0].childNodes)
     this.table = []
     for (var i = 0; i < trs.length; i++) {
-        var row = trs[i].children
+        var row = nodeListToArray(trs[i].childNodes)
         for (var j = 0; j < row.length; j++) {
             var td = row[j]
             td.originalClass = 'hidden'

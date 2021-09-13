@@ -124,47 +124,46 @@ td {
     transition: background 0.2s ease;
 }
 
-td:not([class]),
-td[class=""] {
+td {
     background: #575c78;
 }
 
-td[class="over"] {
+td.over {
     background: #404561;
 }
 
-td[class="ghost"] {
+td.ghost {
     background: #8f93a8;
 }
 
-td[class="hidden"] {
+td.hidden {
     background: transparent;
 }
 
-.i {
+td.i {
     background: #47f6ff;
 }
 
-.o {
+td.o {
     background: #eeff00;
 }
 
-.j {
+td.j {
     background: #4f9eff;
 }
 
-.l {
+td.l {
     background: #ff952b;
 }
 
-.t {
+td.t {
     background: #e34fc5;
 }
 
-.s {
+td.s {
     background: #26ff00;
 }
 
-.z {
+td.z {
     background: #fa6666;
 }
