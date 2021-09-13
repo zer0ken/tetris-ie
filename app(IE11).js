@@ -2,55 +2,17 @@ window.onload = function () {
     window = new App
 }
 
-var console = window.console || { log: function () { } }
+let console = window.console || { log: function () { } }
 
 function nodeListToArray(nodeList) {
     return Array.prototype.slice.call(nodeList)
-}
-
-if (!Function.prototype.bind) {
-    Function.prototype.bind = function (oThis) {
-        if (typeof this !== 'function') {
-            // ECMAScript 5 내부 IsCallable 함수와
-            // 가능한 가장 가까운 것
-            throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-        }
-
-        var aArgs = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP = function () { },
-            fBound = function () {
-                return fToBind.apply(this instanceof fNOP
-                    ? this
-                    : oThis,
-                    aArgs.concat(Array.prototype.slice.call(arguments)));
-            };
-
-        if (this.prototype) {
-            // Function.prototype은 prototype 속성이 없음
-            fNOP.prototype = this.prototype;
-        }
-        fBound.prototype = new fNOP();
-
-        return fBound;
-    };
-}
-
-if (!window.addEventListener && window.attachEvent) {
-    window.addEventListener = window.attachEvent
-}
-
-if (!window.requestAnimationFrame) {
-    window.requestAnimationFrame = function (callback) {
-        setTimeout(callback, 1000 / FPS)
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // App
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var CONTROLS = {
+const CONTROLS = {
     MOVE_LEFT: 'moveLeft',
     MOVE_RIGHT: 'moveRight',
     ROTATE_RIGHT: 'rotateRight',
@@ -62,7 +24,7 @@ var CONTROLS = {
     RESET: 'reset'
 }
 
-var KEYMAP = {
+const KEYMAP = {
     38: CONTROLS.ROTATE_RIGHT,
     88: CONTROLS.ROTATE_RIGHT,
     90: CONTROLS.ROTATE_LEFT,
@@ -77,7 +39,7 @@ var KEYMAP = {
     82: CONTROLS.RESET
 }
 
-var BUTTON_STATE = {
+const BUTTON_STATE = {
     ON: 'button on',
     OFF: 'button off'
 }
@@ -102,11 +64,11 @@ function App() {
 
     this.gravityBTN = document.getElementById('gravity')
     this.gravityBTN.onclick = this.setGravity.bind(this)
-    this.gravityDisplay = document.getElementById('gravity-value')
+    this.gravityDisplay = this.gravityBTN.querySelector('.value')
 
     this.ghostBTN = document.getElementById('ghost')
     this.ghostBTN.onclick = this.toggleGhost.bind(this)
-    this.ghostDisplay = document.getElementById('ghost-value')
+    this.ghostDisplay = this.ghostBTN.querySelector('.value')
 
     this.pressing = {}
 }
@@ -116,10 +78,10 @@ App.prototype.animate = function () {
     this.board.animate()
 
     if (this.board.state == BOARD_STATE.PLAYING) {
-        var pressingKeys = Object.keys(this.pressing)
-        for (var i = 0; i < pressingKeys.length; i++) {
-            var key = pressingKeys[i]
-            var keymap = KEYMAP[key]
+        const pressingKeys = Object.keys(this.pressing)
+        for (let i = 0; i < pressingKeys.length; i++) {
+            const key = pressingKeys[i]
+            const keymap = KEYMAP[key]
             if (keymap == CONTROLS.MOVE_LEFT
                 || keymap == CONTROLS.MOVE_RIGHT
                 || keymap == CONTROLS.SOFT_DROP) {
@@ -134,7 +96,7 @@ App.prototype.animate = function () {
 }
 
 App.prototype.onKeyDown = function (e) {
-    var control = KEYMAP[e.keyCode]
+    const control = KEYMAP[e.keyCode]
     if (control && !(e.keyCode in this.pressing)) {
         this.pressing[e.keyCode] = 0
         if (this.control(control)) {
@@ -209,7 +171,7 @@ App.prototype.setGravity = function () {
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.togglePause()
     }
-    var gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).', this.gravity))
+    const gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).', this.gravity))
     if (gravity != NaN && gravity >= 1 && gravity <= 20) {
         this.gravity = gravity
         this.board.config(gravity, this.ghost)
@@ -230,21 +192,21 @@ App.prototype.toggleGhost = function () {
 // Board
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-var BOARD_STATE = {
+const BOARD_STATE = {
     DEAD: 0,
     PLAYING: 1,
     PAUSED: 2
 }
 
-var FPS = 60
+const FPS = 60
 
-var DAS_SCALE = 20
+const DAS_SCALE = 20
 
-var MIN_DAS = 10
-var BOARD_ROW = 23
-var BOARD_COL = 10
+const MIN_DAS = 10
+const BOARD_ROW = 23
+const BOARD_COL = 10
 
-var SCORE_TYPE = {
+const SCORE_TYPE = {
     DROP: { score: 4 },
     SINGLE_LINE: { score: 100 },
     DOUBLE_LINE: { score: 300, description: 'DOUBLE +', type: 'silver' },
@@ -254,7 +216,7 @@ var SCORE_TYPE = {
     COMBO: { description: 'COMBO +' }
 }
 
-var LINE_SCORE = {
+const LINE_SCORE = {
     1: SCORE_TYPE.SINGLE_LINE,
     2: SCORE_TYPE.DOUBLE_LINE,
     3: SCORE_TYPE.TRIPLE_LINE,
@@ -289,11 +251,11 @@ Board.prototype.init = function () {
 
     this.blocks = 0
     this.board = []
-    for (var i = 0; i < BOARD_ROW; i++) {
-        var row = this.boardTable[i].children
+    for (let i = 0; i < BOARD_ROW; i++) {
+        const row = this.boardTable[i].children
         row.blanks = BOARD_COL
-        for (var col = 0; col < BOARD_COL; col++) {
-            var td = row[col]
+        for (let col = 0; col < BOARD_COL; col++) {
+            const td = row[col]
             if (td.blocked) {
                 td.className = td.originalClass
                 delete td.blocked
@@ -317,7 +279,6 @@ Board.prototype.config = function (gravity, ghost) {
         this.gravity = gravity
         this.framePerTick = FPS / gravity
         this.das = Math.max(this.framePerTick / 3, MIN_DAS)
-        this.leftFrames = this.framePerTick
     }
     this.ghostMode = ghost
     this.updateGhost()
@@ -341,13 +302,13 @@ Board.prototype.tick = function () {
     }
     if (!this.falling) {
         this.falling = this.queue.shift()
-        if (this.falling.isObstructed(this.board, 0, 0, 0)) {
-            this.state = BOARD_STATE.DEAD
-            return
-        }
         if (this.ghostMode) {
             this.removeGhost()
             this.updateGhost()
+        }
+        if (this.falling.isObstructed(this.board, 0, 0, 0)) {
+            this.state = BOARD_STATE.DEAD
+            return
         }
         this.falling.draw(this.board)
     }
@@ -365,28 +326,28 @@ Board.prototype.drop = function () {
 }
 
 Board.prototype.land = function () {
-    var shape = this.falling.blocks[this.falling.rotation]
-    var over = false
-    var cleared = []
-    for (var i = 0; i < shape.length; i++) {
-        var block = shape[i];
-        var row = this.falling.row + block.row
-        var col = this.falling.col + block.col
+    const shape = this.falling.blocks[this.falling.rotation]
+    let over = false
+    const cleared = []
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
+        const row = this.falling.row + block.row
+        const col = this.falling.col + block.col
         if (--this.board[row].blanks == 0) {
             cleared.push(row)
         }
-        var td = this.board[row][col]
+        const td = this.board[row][col]
         over = over || row < 3
         td.blocked = true
     }
-    for (var i = 0; i < cleared.length; i++) {
-        for (var row = cleared[i]; row > 0; row--) {
-            var rowAbove = this.board[row - 1]
-            var clearedRow = this.board[row]
+    for (let i = 0; i < cleared.length; i++) {
+        for (let row = cleared[i]; row > 0; row--) {
+            const rowAbove = this.board[row - 1]
+            const clearedRow = this.board[row]
             clearedRow.blanks = rowAbove.blanks
-            for (var col = 0; col < BOARD_COL; col++) {
-                var tdAbove = rowAbove[col]
-                var td = clearedRow[col]
+            for (let col = 0; col < BOARD_COL; col++) {
+                const tdAbove = rowAbove[col]
+                const td = clearedRow[col]
                 if (tdAbove.blocked) {
                     td.blocked = tdAbove.blocked
                     delete tdAbove.blocked
@@ -408,9 +369,9 @@ Board.prototype.land = function () {
     this.blocks += 4
     if (cleared.length) {
         this.blocks -= cleared.length * BOARD_COL
-        var scoreData = LINE_SCORE[cleared.length]
+        const scoreData = LINE_SCORE[cleared.length]
         scoreData.score *= this.gravity
-        var score = this.addScore(scoreData)
+        const score = this.addScore(scoreData)
         if (!this.combo) {
             this.combo = {
                 score: score,
@@ -421,7 +382,7 @@ Board.prototype.land = function () {
             this.combo.score += score
         }
         if (this.blocks == 0) {
-            var scoreData = SCORE_TYPE.PERFECT_CLEAR
+            const scoreData = SCORE_TYPE.PERFECT_CLEAR
             scoreData.score *= this.gravity
             this.addScore(SCORE_TYPE.PERFECT_CLEAR)
         }
@@ -433,8 +394,8 @@ Board.prototype.land = function () {
 Board.prototype.initScore = function () {
     this.score = 0
     this.scoreDisplay.textContent = 0
-    for (var i = 0; i < this.scoreList.length; i++) {
-        var li = this.scoreList[i];
+    for (let i = 0; i < this.scoreList.length; i++) {
+        const li = this.scoreList[i];
         li.className = ''
         li.textContent = ''
     }
@@ -447,14 +408,14 @@ Board.prototype.addScore = function (scoreData) {
         this.scoreDisplay.textContent = this.score
     }
     if (scoreData.description) {
-        for (var i = this.scoreList.length - 1; i > 0; i--) {
-            var liAbove = this.scoreList[i - 1]
-            var li = this.scoreList[i]
+        for (let i = this.scoreList.length - 1; i > 0; i--) {
+            const liAbove = this.scoreList[i - 1]
+            const li = this.scoreList[i]
 
             li.className = liAbove.className
             li.textContent = liAbove.textContent
         }
-        var li = this.scoreList[0]
+        const li = this.scoreList[0]
         li.textContent = scoreData.description + scoreData.score
         li.className = scoreData.type ? scoreData.type : ''
     }
@@ -500,9 +461,9 @@ Board.prototype.softDrop = function () {
 }
 
 Board.prototype.hardDrop = function () {
-    var isMovable = !this.falling.isObstructed(this.board, 0, 1, 0)
+    const isMovable = !this.falling.isObstructed(this.board, 0, 1, 0)
     if (isMovable) {
-        var height = 0
+        let height = 0
         this.falling.erase(this.board)
         do {
             height++
@@ -536,7 +497,7 @@ Board.prototype.hold = function () {
         return
     }
     this.falling.erase(this.board)
-    var falling = this.falling
+    const falling = this.falling
     if (this.holded.tetrimino.type != GHOST) {
         this.falling = new this.holded.tetrimino.constructor
         this.falling.draw(this.board)
@@ -556,7 +517,7 @@ Board.prototype.hold = function () {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 function openSevenBag() {
-    var bag = [
+    const bag = [
         new IMino,
         new JMino,
         new LMino,
@@ -566,8 +527,8 @@ function openSevenBag() {
         new ZMino
     ]
     bag.choice = function () {
-        var i = Math.floor(Math.random() * bag.length)
-        var choosen = bag[i]
+        const i = Math.floor(Math.random() * bag.length)
+        const choosen = bag[i]
         bag.splice(i, 1)
         return choosen
     }
@@ -575,14 +536,14 @@ function openSevenBag() {
 }
 
 function Queue() {
-    this.queueTables = document.getElementById('queue').children
+    this.queueTables = nodeListToArray(document.querySelectorAll('table.next'))
     this.init()
 }
 
 Queue.prototype.init = function () {
     this.bag = openSevenBag()
     this.queue = []
-    for (var i = 0; i < this.queueTables.length; i++) {
+    for (let i = 0; i < this.queueTables.length; i++) {
         this.queue[i] = new Figure(this.queueTables[i], this.bag.choice())
         if (this.bag.length == 0) {
             this.bag = openSevenBag()
@@ -591,8 +552,8 @@ Queue.prototype.init = function () {
 }
 
 Queue.prototype.shift = function () {
-    var tetrimino = this.queue[0].tetrimino
-    for (var i = 0; i < this.queue.length - 1; i++) {
+    const tetrimino = this.queue[0].tetrimino
+    for (let i = 0; i < this.queue.length - 1; i++) {
         this.queue[i].setTetrimino(this.queue[i + 1].tetrimino)
     }
     this.queue[this.queue.length - 1].setTetrimino(this.bag.choice())
@@ -607,12 +568,12 @@ Queue.prototype.shift = function () {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 function Figure(table, tetrimino) {
-    var trs = table.children[0].children
+    const trs = table.children[0].children
     this.table = []
-    for (var i = 0; i < trs.length; i++) {
-        var row = trs[i].children
-        for (var j = 0; j < row.length; j++) {
-            var td = row[j]
+    for (let i = 0; i < trs.length; i++) {
+        const row = trs[i].children
+        for (let j = 0; j < row.length; j++) {
+            const td = row[j]
             td.originalClass = 'hidden'
             td.className = 'hidden'
         }
@@ -625,17 +586,17 @@ function Figure(table, tetrimino) {
 
 Figure.prototype.setTetrimino = function (tetrimino) {
     if (this.tetrimino) {
-        var shape = this.tetrimino.blocks[0]
-        for (var i = 0; i < shape.length; i++) {
-            var block = shape[i];
-            var td = this.table[block.row][block.col]
+        const shape = this.tetrimino.blocks[0]
+        for (let i = 0; i < shape.length; i++) {
+            const block = shape[i];
+            const td = this.table[block.row][block.col]
             td.className = td.originalClass
         }
     }
-    var shape = tetrimino.blocks[0]
-    for (var i = 0; i < shape.length; i++) {
-        var block = shape[i];
-        var td = this.table[block.row][block.col]
+    const shape = tetrimino.blocks[0]
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
+        const td = this.table[block.row][block.col]
         td.className = tetrimino.type
     }
     this.tetrimino = tetrimino
@@ -660,7 +621,7 @@ function Tetrimino(row, col) {
     this.rotation = 0
 }
 
-var GHOST = 'ghost'
+const GHOST = 'ghost'
 Tetrimino.prototype.type = GHOST
 Tetrimino.prototype.blocks = [[block(1, 0), block(0, 1), block(1, 2), block(0, 3)]]
 Tetrimino.prototype.kicks = [
@@ -680,13 +641,13 @@ Tetrimino.prototype.kicks = [
 ]
 
 Tetrimino.prototype.isObstructed = function (board, rotationOffset, rowOffset, colOffset) {
-    var maxRotation = this.blocks.length
-    var rotation = ((this.rotation + rotationOffset) % maxRotation + maxRotation) % maxRotation
-    var shape = this.blocks[rotation]
-    for (var i = 0; i < shape.length; i++) {
-        var block = shape[i];
-        var row = this.row + block.row + rowOffset
-        var col = this.col + block.col + colOffset
+    const maxRotation = this.blocks.length
+    const rotation = ((this.rotation + rotationOffset) % maxRotation + maxRotation) % maxRotation
+    const shape = this.blocks[rotation]
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
+        const row = this.row + block.row + rowOffset
+        const col = this.col + block.col + colOffset
         if (!isInBoard(row, col) || board[row][col].blocked) {
             return true
         }
@@ -695,11 +656,11 @@ Tetrimino.prototype.isObstructed = function (board, rotationOffset, rowOffset, c
 }
 
 Tetrimino.prototype.rotate = function (board, delta) {
-    var failed = this.isObstructed(board, delta, 0, 0)
+    let failed = this.isObstructed(board, delta, 0, 0)
     if (failed && this.kicks[this.rotation]) {
-        var kicks = this.kicks[this.rotation][delta]
-        for (var i = 0; i < kicks.length; i++) {
-            var kick = kicks[i];
+        const kicks = this.kicks[this.rotation][delta]
+        for (let i = 0; i < kicks.length; i++) {
+            const kick = kicks[i];
             if (!this.isObstructed(board, delta, kick.row, kick.col)) {
                 this.row += kick.row
                 this.col += kick.col
@@ -709,18 +670,18 @@ Tetrimino.prototype.rotate = function (board, delta) {
         }
     }
     if (!failed) {
-        var maxRotation = this.blocks.length
+        const maxRotation = this.blocks.length
         this.rotation = ((this.rotation + delta) % maxRotation + maxRotation) % maxRotation
     }
 }
 
 Tetrimino.prototype.draw = function (board) {
-    var shape = this.blocks[this.rotation]
-    for (var i = 0; i < shape.length; i++) {
-        var block = shape[i];
-        var row = this.row + block.row
-        var col = this.col + block.col
-        var td = board[row][col]
+    const shape = this.blocks[this.rotation]
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
+        const row = this.row + block.row
+        const col = this.col + block.col
+        const td = board[row][col]
         if (td.className != this.type) {
             td.className = this.type
         }
@@ -728,12 +689,12 @@ Tetrimino.prototype.draw = function (board) {
 }
 
 Tetrimino.prototype.erase = function (board) {
-    var shape = this.blocks[this.rotation]
-    for (var i = 0; i < shape.length; i++) {
-        var block = shape[i];
-        var row = this.row + block.row
-        var col = this.col + block.col
-        var td = board[row][col]
+    const shape = this.blocks[this.rotation]
+    for (let i = 0; i < shape.length; i++) {
+        const block = shape[i];
+        const row = this.row + block.row
+        const col = this.col + block.col
+        const td = board[row][col]
         if (td.className == this.type) {
             td.className = td.originalClass
         }

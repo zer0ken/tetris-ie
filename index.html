@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <section id="left">
+    <div id="left">
         <div>
             <h2 class="label">HOLD</h2>
             <table id="hold">
@@ -45,8 +45,8 @@
                 <li></li>
             </ul>
         </div>
-    </section>
-    <section id="center">
+    </div>
+    <div id="center">
         <table id="board">
             <!-- tr*3>td.over*10 -->
             <!-- tr*20>td*10 -->
@@ -327,8 +327,8 @@
                 <td></td>
             </tr>
         </table>
-    </section>
-    <section id="right">
+    </div>
+    <div id="right">
         <h2 class="label">NEXT</h2>
         <div id="queue">
             <!-- table.next*5>tr*2>td*4 -->
@@ -403,7 +403,7 @@
                 </tr>
             </table>
         </div>
-    </section>
+    </div>
     <nav>
         <ul>
             <h3 id="pause" class="button">PAUSE</h3>
@@ -414,12 +414,12 @@
             <li id="gravity" class="button">
                 <span class="emoji">⏬</span>
                 Gravity
-                <span class="value">1</span>
+                <span id="gravity-value">1</span>
             </li>
             <li id="ghost" class="button">
                 <span class="emoji">👻</span>
                 Ghost
-                <span class="value">ON</span>
+                <span id="ghost-value">ON</span>
             </li>
         </ul>
     </nav>

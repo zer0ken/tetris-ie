@@ -19,9 +19,9 @@ li {
     list-style-type: none;
 }
 
-section#left,
-section#center,
-section#right,
+#left,
+#center,
+#right,
 nav {
     float: left;
     margin: 26px 0 0 26px;
@@ -51,30 +51,30 @@ table {
     min-width: 112px;
 }
 
-section#left {
+#left {
     text-align: right;
     width: 220px;
 }
 
-section#left > div {
+#left > div {
     margin-bottom: 26px;
 }
 
-section#left li {
+#left li {
     color: #7d7e8a;
 }
 
-section#left li.silver {
+#left li.silver {
     font-weight: bold;
     color: silver;
 }
 
-section#left li.gold {
+#left li.gold {
     font-weight: bold;
     color: gold;
 }
 
-section#left li.aqua {
+#left li.aqua {
     font-weight: bold;
     color: aqua;
 }
