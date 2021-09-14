@@ -1,9 +1,3 @@
-window.onload = function () {
-    window = new App
-}
-
-var console = window.console || { log: function () { } }
-
 function isElement(obj) {
     try {
         //Using W3 DOM2 (works for FF, Opera and Chrome)
@@ -30,44 +24,95 @@ function nodeListToArray(nodeList) {
     return children
 }
 
-if (!Function.prototype.bind) {
-    Function.prototype.bind = function (oThis) {
-        if (typeof this !== 'function') {
-            throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-        }
-
-        var aArgs = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP = function () { },
-            fBound = function () {
-                return fToBind.apply(this instanceof fNOP
-                    ? this
-                    : oThis,
-                    aArgs.concat(Array.prototype.slice.call(arguments)));
-            };
-
-        if (this.prototype) {
-            fNOP.prototype = this.prototype;
-        }
-        fBound.prototype = new fNOP();
-
-        return fBound;
-    };
-}
-
-if (!window.addEventListener && window.attachEvent) {
-    window.addEventListener = window.attachEvent
-}
-
-if (!window.requestAnimationFrame) {
-    window.requestAnimationFrame = function (callback) {
-        setTimeout(callback, 1000 / FPS)
+function setTextContent(el, text) {
+    if (el.textContent) {
+        el.textContent = text
+    } else {
+        el.innerHTML = ''
+        el.appendChild(
+            document.createTextNode(text)
+        )
     }
 }
+
+function getTextContent(el) {
+    if (el.textContent) {
+        return el.textContent
+    }
+    return el.innerText
+}
+
+(function () {
+    var alertFallback = true;
+    if (typeof console === "undefined" || typeof console.log === "undefined") {
+        console = {};
+        if (alertFallback) {
+            console.log = function (msg) {
+                alert(msg);
+            };
+        } else {
+            console.log = function () { };
+        }
+    }
+    if (!Function.prototype.bind) {
+        Function.prototype.bind = function (oThis) {
+            if (typeof this !== 'function') {
+                throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+            }
+
+            var aArgs = Array.prototype.slice.call(arguments, 1),
+                fToBind = this,
+                fNOP = function () { },
+                fBound = function () {
+                    return fToBind.apply(this instanceof fNOP
+                        ? this
+                        : oThis,
+                        aArgs.concat(Array.prototype.slice.call(arguments)));
+                };
+
+            if (this.prototype) {
+                fNOP.prototype = this.prototype;
+            }
+            fBound.prototype = new fNOP();
+
+            return fBound;
+        };
+    }
+
+    if (!window.addEventListener && window.attachEvent) {
+        window.addEventListener = function (eventName, callback) {
+            document.attachEvent('on' + eventName, callback)
+        }
+    }
+
+    if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = function (callback) {
+            setTimeout(callback, 1000 / FPS)
+        }
+    }
+
+    if (!Object.keys) {
+        Object.keys = function (obj) {
+            var keys = [];
+
+            for (var i in obj) {
+                if (obj.hasOwnProperty(i)) {
+                    keys.push(i);
+                }
+            }
+
+            return keys;
+        };
+    }
+})()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // App
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+window.onload = function () {
+    new App
+}
 
 var CONTROLS = {
     MOVE_LEFT: 'moveLeft',
@@ -157,7 +202,7 @@ App.prototype.onKeyDown = function (e) {
     if (control && !(e.keyCode in this.pressing)) {
         this.pressing[e.keyCode] = 0
         if (this.control(control)) {
-            e.preventDefault()
+            e.preventDefault ? e.preventDefault() : (e.returnValue = false)
         }
     }
 }
@@ -232,7 +277,7 @@ App.prototype.setGravity = function () {
     if (gravity != NaN && gravity >= 1 && gravity <= 20) {
         this.gravity = gravity
         this.board.config(gravity, this.ghost)
-        this.gravityDisplay.textContent = gravity
+        setTextContent(this.gravityDisplay, gravity)
     }
 }
 
@@ -241,7 +286,7 @@ App.prototype.toggleGhost = function () {
         this.togglePause()
     }
     this.ghost = !this.ghost
-    this.ghostDisplay.textContent = this.ghost ? 'ON' : 'OFF'
+    setTextContent(this.ghostDisplay, this.ghost ? 'ON' : 'OFF')
     this.board.config(this.gravity, this.ghost)
 }
 
@@ -319,7 +364,7 @@ Board.prototype.init = function () {
             var td = row[col]
             if (td.blocked) {
                 td.className = td.originalClass
-                delete td.blocked
+                td.blocked = false
             }
             td.originalClass = td.className ? td.className : ''
             td.className = td.className || ''
@@ -412,9 +457,9 @@ Board.prototype.land = function () {
                 var td = clearedRow[col]
                 if (tdAbove.blocked) {
                     td.blocked = tdAbove.blocked
-                    delete tdAbove.blocked
+                    tdAbove.blocked = false
                 } else {
-                    delete td.blocked
+                    td.blocked = false
                 }
                 td.className = row == 3 ? td.originalClass : tdAbove.className
                 tdAbove.className = tdAbove.originalClass
@@ -455,11 +500,11 @@ Board.prototype.land = function () {
 
 Board.prototype.initScore = function () {
     this.score = 0
-    this.scoreDisplay.textContent = 0
+    setTextContent(this.scoreDisplay, 0)
     for (var i = 0; i < this.scoreList.length; i++) {
         var li = this.scoreList[i];
         li.className = ''
-        li.textContent = ''
+        setTextContent(li, '')
     }
     this.combo = null
 }
@@ -467,7 +512,7 @@ Board.prototype.initScore = function () {
 Board.prototype.addScore = function (scoreData) {
     if (scoreData.score) {
         this.score += scoreData.score
-        this.scoreDisplay.textContent = this.score
+        setTextContent(this.scoreDisplay, this.score)
     }
     if (scoreData.description) {
         for (var i = this.scoreList.length - 1; i > 0; i--) {
@@ -475,10 +520,10 @@ Board.prototype.addScore = function (scoreData) {
             var li = this.scoreList[i]
 
             li.className = liAbove.className
-            li.textContent = liAbove.textContent
+            setTextContent(li, getTextContent(liAbove))
         }
         var li = this.scoreList[0]
-        li.textContent = scoreData.description + scoreData.score
+        setTextContent(li, scoreData.description + scoreData.score)
         li.className = scoreData.type ? scoreData.type : ''
     }
     return scoreData.score

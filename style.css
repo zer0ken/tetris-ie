@@ -14,6 +14,10 @@ html {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+body {
+    overflow: hidden;
+}
+
 li {
     padding-left: 0;
     list-style-type: none;
@@ -22,8 +26,9 @@ li {
 #left,
 #center,
 #right,
-nav {
+#nav {
     float: left;
+    clear:right;
     margin: 26px 0 0 26px;
 }
 
@@ -48,7 +53,7 @@ table {
     background: white;
     color: #303245;
     display: inline-block;
-    min-width: 112px;
+    width: 112px;
 }
 
 #left {
@@ -79,11 +84,11 @@ table {
     color: aqua;
 }
 
-nav {
-    min-width: 120px;
+#nav {
+    width: 120px;
 }
 
-nav li {
+#nav li {
     padding: 3px 6px;
     margin: 0 0 6px 6px;
 }
@@ -92,9 +97,9 @@ nav li {
     cursor: pointer;
 
     -webkit-transition: box-shadow 0.5s ease;
-         -o-transition: box-shadow 0.5s ease;
-        -ms-transition: box-shadow 0.5s ease;
-            transition: box-shadow 0.5s ease;
+    -o-transition: box-shadow 0.5s ease;
+    -ms-transition: box-shadow 0.5s ease;
+    transition: box-shadow 0.5s ease;
 }
 
 .button:hover {
@@ -103,9 +108,9 @@ nav li {
     box-shadow: 0 0 26px rgba(255, 255, 255, 0.6);
 
     -webkit-transition-duration: 5ms;
-         -o-transition-duration: 5ms;
-        -ms-transition-duration: 5ms;
-            transition-duration: 5ms;
+    -o-transition-duration: 5ms;
+    -ms-transition-duration: 5ms;
+    transition-duration: 5ms;
 }
 
 .on {
@@ -123,20 +128,20 @@ nav li {
 
 table#board td {
     -webkit-transition: none;
-         -o-transition: none;
-        -ms-transition: none;
-            transition: none;
+    -o-transition: none;
+    -ms-transition: none;
+    transition: none;
 }
 
 td {
     width: 26px;
     height: 26px;
     margin: 1px;
-    
+
     -webkit-transition: background 0.2s ease;
-         -o-transition: background 0.2s ease;
-        -ms-transition: background 0.2s ease;
-            transition: background 0.2s ease;
+    -o-transition: background 0.2s ease;
+    -ms-transition: background 0.2s ease;
+    transition: background 0.2s ease;
 }
 
 td {
