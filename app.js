@@ -309,6 +309,9 @@ var SCORE_TYPE = {
     SINGLE_LINE: { score: 100 },
     DOUBLE_LINE: { score: 300, description: 'DOUBLE +', type: 'silver' },
     TRIPLE_LINE: { score: 500, description: 'TRIPLE +', type: 'silver' },
+    T_SPIN_SINGLE: { score: 1200, description: 'T SPIN SINGLE +', type: 'silver' },
+    T_SPIN_DOUBLE: { score: 1600, description: 'T SPIN DOUBLE +', type: 'silver' },
+    T_SPIN_TRIPLE: { score: 2000, description: 'T SPIN TRIPLE +', type: 'gold' },
     TETRIS: { score: 1000, description: 'TETRIS +', type: 'gold' },
     PERFECT_CLEAR: { score: 10000, description: 'PERFECT CLEAR +', type: 'aqua' },
     COMBO: { description: 'COMBO +' }
@@ -319,6 +322,12 @@ var LINE_SCORE = {
     2: SCORE_TYPE.DOUBLE_LINE,
     3: SCORE_TYPE.TRIPLE_LINE,
     4: SCORE_TYPE.TETRIS
+}
+
+var T_SPIN_SCORE = {
+    1: SCORE_TYPE.T_SPIN_SINGLE,
+    2: SCORE_TYPE.T_SPIN_DOUBLE,
+    3: SCORE_TYPE.T_SPIN_TRIPLE
 }
 
 function Board(gravity, ghost) {
@@ -334,6 +343,7 @@ function Board(gravity, ghost) {
     this.queue = new Queue()
     this.holded = new Figure(document.getElementById('hold'))
 
+    this.spinned = false
     this.scoreDisplay = document.getElementById('score')
     this.scoreList = nodeListToArray(document.getElementById('score-list').childNodes)
 
@@ -343,7 +353,7 @@ function Board(gravity, ghost) {
 Board.prototype.init = function () {
     if (this.falling) {
         this.falling.erase(this.board)
-        this.falling = null
+        this.falling = false
         this.removeGhost()
     }
 
@@ -369,10 +379,12 @@ Board.prototype.init = function () {
     }
     this.leftFrames = 0
 
+    this.queue.init()
+
     this.holded.setTetrimino(new Tetrimino)
     this.holdSwapped = false
 
-    this.queue.init()
+    this.spinned = false
     this.initScore()
 }
 
@@ -404,6 +416,7 @@ Board.prototype.tick = function () {
         this.drop()
     }
     if (!this.falling) {
+        this.spinned = false
         this.falling = this.queue.shift()
         if (this.falling.isObstructed(this.board, 0, 0, 0)) {
             this.state = BOARD_STATE.DEAD
@@ -422,15 +435,20 @@ Board.prototype.drop = function () {
         this.falling.erase(this.board)
         this.falling.row++
         this.falling.draw(this.board)
-        return true
+        this.spinned = false
+    } else {
+        this.land()
     }
-    this.land()
-    return false
 }
 
 Board.prototype.land = function () {
     var shape = this.falling.blocks[this.falling.rotation]
     var over = false
+    var tSpin = (
+        this.spinned
+        && this.falling.isStucked
+        && this.falling.isStucked(this.board)
+    )
     var cleared = []
     for (var i = 0; i < shape.length; i++) {
         var block = shape[i];
@@ -465,14 +483,15 @@ Board.prototype.land = function () {
     if (over) {
         this.state = BOARD_STATE.DEAD
     }
-    this.falling = null
     this.holdSwapped = false
 
     this.addScore(SCORE_TYPE.DROP)
     this.blocks += 4
     if (cleared.length) {
+        console.log(this.spinned, this.falling, this.falling.isStucked, this.falling.isStucked(this.board))
+        var scoreList = tSpin ? T_SPIN_SCORE : LINE_SCORE
         this.blocks -= cleared.length * BOARD_COL
-        var scoreData = LINE_SCORE[cleared.length]
+        var scoreData = scoreList[cleared.length]
         scoreData.score *= this.gravity
         var score = this.addScore(scoreData)
         if (!this.combo) {
@@ -492,6 +511,7 @@ Board.prototype.land = function () {
     } else {
         this.combo = null
     }
+    this.falling = null
 }
 
 Board.prototype.initScore = function () {
@@ -560,6 +580,7 @@ Board.prototype.softDrop = function () {
         this.falling.row++
         this.falling.draw(this.board)
         this.leftFrames = this.framePerTick
+        this.spinned = false
     }
 }
 
@@ -574,6 +595,7 @@ Board.prototype.hardDrop = function () {
         } while (!this.falling.isObstructed(this.board, 0, 1, 0))
         this.falling.draw(this.board)
         this.addScore({ score: height })
+        this.spinned = false
     }
     this.land()
     this.leftFrames = 0
@@ -585,13 +607,16 @@ Board.prototype.move = function (delta) {
         this.falling.col += delta
         this.updateGhost()
         this.falling.draw(this.board)
+        this.spinned = false
     }
 }
 
 Board.prototype.rotate = function (delta) {
     this.falling.erase(this.board)
-    this.falling.rotate(this.board, delta)
-    this.updateGhost()
+    if (this.falling.rotate(this.board, delta)) {
+        this.updateGhost()
+        this.spinned = true
+    }
     this.falling.draw(this.board)
 }
 
@@ -613,6 +638,7 @@ Board.prototype.hold = function () {
     }
     this.holded.setTetrimino(falling)
     this.holdSwapped = true
+    this.spinned = false
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -776,6 +802,7 @@ Tetrimino.prototype.rotate = function (board, delta) {
         var maxRotation = this.blocks.length
         this.rotation = ((this.rotation + delta) % maxRotation + maxRotation) % maxRotation
     }
+    return !failed
 }
 
 Tetrimino.prototype.draw = function (board) {
