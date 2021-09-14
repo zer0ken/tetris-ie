@@ -305,16 +305,36 @@ var BOARD_ROW = 23
 var BOARD_COL = 10
 
 var SCORE_TYPE = {
-    DROP: function () { return { score: 4 } },
-    SINGLE_LINE: function () { return { score: 100 } },
-    DOUBLE_LINE: function () { return { score: 300, description: 'DOUBLE +', type: 'silver' } },
-    TRIPLE_LINE: function () { return { score: 500, description: 'TRIPLE +', type: 'silver' } },
-    T_SPIN_SINGLE: function () { return { score: 1200, description: 'T SPIN SINGLE +' } },
-    T_SPIN_DOUBLE: function () { return { score: 1600, description: 'T SPIN DOUBLE +', type: 'silver' } },
-    T_SPIN_TRIPLE: function () { return { score: 2000, description: 'T SPIN TRIPLE +', type: 'gold' } },
-    TETRIS: function () { return { score: 1000, description: 'TETRIS +', type: 'gold' } },
-    PERFECT_CLEAR: function () { return { score: 10000, description: 'PERFECT CLEAR +', type: 'aqua' } },
-    COMBO: function () { return { score: 0, description: 'COMBO +' } }
+    DROP: function () {
+        return { score: 4 }
+    },
+    SINGLE_LINE: function () {
+        return { score: 100 }
+    },
+    DOUBLE_LINE: function () {
+        return { score: 300, description: 'DOUBLE +', type: 'silver' }
+    },
+    TRIPLE_LINE: function () {
+        return { score: 500, description: 'TRIPLE +', type: 'silver' }
+    },
+    T_SPIN_SINGLE: function () {
+        return { score: 500, description: 'T SPIN SINGLE +' }
+    },
+    T_SPIN_DOUBLE: function () {
+        return { score: 1000, description: 'T SPIN DOUBLE +', type: 'silver' }
+    },
+    T_SPIN_TRIPLE: function () {
+        return { score: 1500, description: 'T SPIN TRIPLE +', type: 'gold' }
+    },
+    TETRIS: function () {
+        return { score: 1000, description: 'TETRIS +', type: 'gold' }
+    },
+    PERFECT_CLEAR: function () {
+        return { score: 10000, description: 'PERFECT CLEAR +', type: 'aqua' }
+    },
+    COMBO: function () {
+        return { score: 0, description: 'COMBO +' }
+    }
 }
 
 var LINE_SCORE = {
