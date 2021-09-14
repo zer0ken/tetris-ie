@@ -305,35 +305,41 @@ var BOARD_ROW = 23
 var BOARD_COL = 10
 
 var SCORE_TYPE = {
-    DROP: function () {
-        return { score: 4 }
+    DROP: function (height) {
+        return { type: 'Drop', score: height }
+    },
+    LAND: function () {
+        return { type: 'Land', score: 4 }
     },
     SINGLE_LINE: function () {
-        return { score: 100 }
+        return { type: 'Single Line', score: 100, description: 'SINGLE +' }
     },
     DOUBLE_LINE: function () {
-        return { score: 300, description: 'DOUBLE +', type: 'silver' }
+        return { type: 'Double Line', score: 300, description: 'DOUBLE +', tier: 'silver' }
     },
     TRIPLE_LINE: function () {
-        return { score: 500, description: 'TRIPLE +', type: 'silver' }
+        return { type: 'Triple Line', score: 500, description: 'TRIPLE +', tier: 'silver' }
     },
     T_SPIN_SINGLE: function () {
-        return { score: 500, description: 'T SPIN SINGLE +' }
+        return { type: 'T-Spin Single', score: 500, description: 'T SPIN SINGLE +' }
     },
     T_SPIN_DOUBLE: function () {
-        return { score: 1000, description: 'T SPIN DOUBLE +', type: 'silver' }
+        return { type: 'T-Spin Double', score: 1000, description: 'T SPIN DOUBLE +', tier: 'silver' }
     },
     T_SPIN_TRIPLE: function () {
-        return { score: 1500, description: 'T SPIN TRIPLE +', type: 'gold' }
+        return { type: 'T-Spin Triple', score: 1500, description: 'T SPIN TRIPLE +', tier: 'gold' }
     },
     TETRIS: function () {
-        return { score: 1000, description: 'TETRIS +', type: 'gold' }
+        return { type: 'Tetris', score: 1000, description: 'TETRIS +', tier: 'gold' }
     },
     PERFECT_CLEAR: function () {
-        return { score: 10000, description: 'PERFECT CLEAR +', type: 'aqua' }
+        return { type: 'Perfect Clear', score: 10000, description: 'PERFECT CLEAR +', tier: 'aqua' }
     },
-    COMBO: function () {
-        return { score: 0, description: 'COMBO +' }
+    COMBO: function (lastCombo) {
+        if (lastCombo) {
+            return { type: 'Combo', score: lastCombo.score, description: 'COMBO ×' + lastCombo.count + ' +', count: lastCombo.count + 1 }
+        }
+        return { type: 'Combo', score: 0, count: 0 }
     }
 }
 
@@ -505,7 +511,7 @@ Board.prototype.land = function () {
     }
     this.holdSwapped = false
 
-    this.addScore(SCORE_TYPE.DROP())
+    this.addScore(SCORE_TYPE.LAND())
     this.blocks += 4
     if (cleared.length) {
         var scoreList = tSpin ? T_SPIN_SCORE : LINE_SCORE
@@ -514,20 +520,20 @@ Board.prototype.land = function () {
         console.log(scoreData, this.gravity)
         scoreData.score *= this.gravity
         this.addScore(scoreData)
-        if (!this.combo) {
-            this.combo = SCORE_TYPE.COMBO()
-            this.combo.score = scoreData.score
-        } else {
+
+        this.combo = SCORE_TYPE.COMBO(this.combo)
+        if (this.combo.count >= 2) {
             this.addScore(this.combo)
-            this.combo.score += scoreData.score
         }
+        this.combo.score += scoreData.score
+        
         if (this.blocks == 0) {
             var scoreData = SCORE_TYPE.PERFECT_CLEAR()
             scoreData.score *= this.gravity
             this.addScore(scoreData)
         }
     } else {
-        this.combo = null
+        this.combo = SCORE_TYPE.COMBO()
     }
     this.falling = null
 }
@@ -540,7 +546,7 @@ Board.prototype.initScore = function () {
         li.className = ''
         setTextContent(li, '')
     }
-    this.combo = null
+    this.combo = SCORE_TYPE.COMBO()
 }
 
 Board.prototype.addScore = function (scoreData) {
@@ -558,7 +564,7 @@ Board.prototype.addScore = function (scoreData) {
         }
         var li = this.scoreList[0]
         setTextContent(li, scoreData.description + scoreData.score)
-        li.className = scoreData.type ? scoreData.type : ''
+        li.className = scoreData.tier ? scoreData.tier : ''
     }
 }
 
@@ -611,7 +617,7 @@ Board.prototype.hardDrop = function () {
             this.falling.row++
         } while (!this.falling.isObstructed(this.board, 0, 1, 0))
         this.falling.draw(this.board)
-        this.addScore({ score: height })
+        this.addScore(SCORE_TYPE.DROP(height))
         this.spinned = false
     }
     this.land()
@@ -657,6 +663,12 @@ Board.prototype.hold = function () {
     this.holdSwapped = true
     this.spinned = false
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Statistics
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO implement this!!
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Queue
