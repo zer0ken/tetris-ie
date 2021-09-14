@@ -84,6 +84,14 @@ table {
     color: aqua;
 }
 
+#center {
+    width: 280px;
+}
+
+#right {
+    width: 112px;
+}
+
 #nav {
     width: 120px;
 }
