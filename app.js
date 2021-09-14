@@ -305,16 +305,16 @@ var BOARD_ROW = 23
 var BOARD_COL = 10
 
 var SCORE_TYPE = {
-    DROP: { score: 4 },
-    SINGLE_LINE: { score: 100 },
-    DOUBLE_LINE: { score: 300, description: 'DOUBLE +', type: 'silver' },
-    TRIPLE_LINE: { score: 500, description: 'TRIPLE +', type: 'silver' },
-    T_SPIN_SINGLE: { score: 1200, description: 'T SPIN SINGLE +', type: 'silver' },
-    T_SPIN_DOUBLE: { score: 1600, description: 'T SPIN DOUBLE +', type: 'silver' },
-    T_SPIN_TRIPLE: { score: 2000, description: 'T SPIN TRIPLE +', type: 'gold' },
-    TETRIS: { score: 1000, description: 'TETRIS +', type: 'gold' },
-    PERFECT_CLEAR: { score: 10000, description: 'PERFECT CLEAR +', type: 'aqua' },
-    COMBO: { description: 'COMBO +' }
+    DROP: function () { return { score: 4 } },
+    SINGLE_LINE: function () { return { score: 100 } },
+    DOUBLE_LINE: function () { return { score: 300, description: 'DOUBLE +', type: 'silver' } },
+    TRIPLE_LINE: function () { return { score: 500, description: 'TRIPLE +', type: 'silver' } },
+    T_SPIN_SINGLE: function () { return { score: 1200, description: 'T SPIN SINGLE +', type: 'silver' } },
+    T_SPIN_DOUBLE: function () { return { score: 1600, description: 'T SPIN DOUBLE +', type: 'silver' } },
+    T_SPIN_TRIPLE: function () { return { score: 2000, description: 'T SPIN TRIPLE +', type: 'gold' } },
+    TETRIS: function () { return { score: 1000, description: 'TETRIS +', type: 'gold' } },
+    PERFECT_CLEAR: function () { return { score: 10000, description: 'PERFECT CLEAR +', type: 'aqua' } },
+    COMBO: function () { return { score: 0, description: 'COMBO +' } }
 }
 
 var LINE_SCORE = {
@@ -485,28 +485,26 @@ Board.prototype.land = function () {
     }
     this.holdSwapped = false
 
-    this.addScore(SCORE_TYPE.DROP)
+    this.addScore(SCORE_TYPE.DROP())
     this.blocks += 4
     if (cleared.length) {
-        console.log(this.spinned, this.falling, this.falling.isStucked, this.falling.isStucked(this.board))
         var scoreList = tSpin ? T_SPIN_SCORE : LINE_SCORE
         this.blocks -= cleared.length * BOARD_COL
-        var scoreData = scoreList[cleared.length]
+        var scoreData = scoreList[cleared.length]()
+        console.log(scoreData, this.gravity)
         scoreData.score *= this.gravity
-        var score = this.addScore(scoreData)
+        this.addScore(scoreData)
         if (!this.combo) {
-            this.combo = {
-                score: score,
-                description: SCORE_TYPE.COMBO.description
-            }
+            this.combo = SCORE_TYPE.COMBO()
+            this.combo.score = scoreData.score
         } else {
             this.addScore(this.combo)
             this.combo.score += score
         }
         if (this.blocks == 0) {
-            var scoreData = SCORE_TYPE.PERFECT_CLEAR
+            var scoreData = SCORE_TYPE.PERFECT_CLEAR()
             scoreData.score *= this.gravity
-            this.addScore(SCORE_TYPE.PERFECT_CLEAR)
+            this.addScore(scoreData)
         }
     } else {
         this.combo = null
@@ -542,7 +540,6 @@ Board.prototype.addScore = function (scoreData) {
         setTextContent(li, scoreData.description + scoreData.score)
         li.className = scoreData.type ? scoreData.type : ''
     }
-    return scoreData.score
 }
 
 Board.prototype.removeGhost = function () {
