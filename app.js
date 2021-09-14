@@ -883,6 +883,22 @@ TMino.prototype.blocks = [
     [block(1, 0), block(1, 1), block(1, 2), block(2, 1)],
     [block(0, 1), block(1, 0), block(1, 1), block(2, 1)]
 ]
+TMino.prototype.corners = [block(0, 0), block(0, 2), block(2, 0), block(2, 2)]
+TMino.prototype.isStucked = function (board) {
+    var blocked = 0
+    for (var i = 0; i < this.corners.length; i++) {
+        var corner = this.corners[i];
+        var row = this.row + corner.row
+        var col = this.col + corner.col
+        if (!isInBoard(row, col) || board[row][col].blocked) {
+            blocked++
+        }
+        if (blocked >= 3) {
+            return true
+        }
+    }
+    return false
+}
 
 function ZMino() { }
 ZMino.prototype = new Tetrimino(0, 3)
