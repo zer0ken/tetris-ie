@@ -309,7 +309,7 @@ var SCORE_TYPE = {
     SINGLE_LINE: function () { return { score: 100 } },
     DOUBLE_LINE: function () { return { score: 300, description: 'DOUBLE +', type: 'silver' } },
     TRIPLE_LINE: function () { return { score: 500, description: 'TRIPLE +', type: 'silver' } },
-    T_SPIN_SINGLE: function () { return { score: 1200, description: 'T SPIN SINGLE +', type: 'silver' } },
+    T_SPIN_SINGLE: function () { return { score: 1200, description: 'T SPIN SINGLE +' } },
     T_SPIN_DOUBLE: function () { return { score: 1600, description: 'T SPIN DOUBLE +', type: 'silver' } },
     T_SPIN_TRIPLE: function () { return { score: 2000, description: 'T SPIN TRIPLE +', type: 'gold' } },
     TETRIS: function () { return { score: 1000, description: 'TETRIS +', type: 'gold' } },
@@ -391,8 +391,8 @@ Board.prototype.init = function () {
 Board.prototype.config = function (gravity, ghost) {
     if (gravity) {
         this.gravity = gravity
-        this.framePerTick = FPS / gravity
-        this.das = Math.max(this.framePerTick / 3, MIN_DAS)
+        this.framePerTick = FPS / (.5 + gravity / 2)
+        this.das = Math.max(this.framePerTick / 5, MIN_DAS)
         this.leftFrames = this.framePerTick
     }
     this.ghostMode = ghost
@@ -499,7 +499,7 @@ Board.prototype.land = function () {
             this.combo.score = scoreData.score
         } else {
             this.addScore(this.combo)
-            this.combo.score += score
+            this.combo.score += scoreData.score
         }
         if (this.blocks == 0) {
             var scoreData = SCORE_TYPE.PERFECT_CLEAR()
