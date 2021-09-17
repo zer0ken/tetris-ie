@@ -816,8 +816,8 @@ Statistics.prototype.collect = function (scoreData) {
 }
 
 Statistics.prototype.toString = function () {
-    return ('[ 착지 기록 ]'
-        + '\n  * 착지 개수:  ' + this.landed + ' 개'
+    return ('[ 하강 기록 ]'
+        + '\n  * 하강 개수:  ' + this.landed + ' 개'
         + '\n  * 하드 드랍한 높이:  ' + this.height + ' 블럭'
         + '\n\n[ 제거 기록 ]'
         + '\n  * 제거한 줄:  ' + this.cleared + ' 줄'
