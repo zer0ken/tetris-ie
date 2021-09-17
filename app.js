@@ -153,7 +153,7 @@ var BUTTON_STATE = {
 
 var DAY_NIGHT = {
     DAY: '☀',
-    NIGHT: '⭐'
+    NIGHT: '★'
 }
 
 function App() {
