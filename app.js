@@ -151,6 +151,11 @@ var BUTTON_STATE = {
     OFF: 'button off'
 }
 
+var DAY_NIGHT = {
+    DAY: '☀',
+    NIGHT: '⭐'
+}
+
 function App() {
     this.paused = false
     this.gravity = 1
@@ -180,7 +185,17 @@ function App() {
     this.ghostBTN.onclick = this.toggleGhost.bind(this)
     this.ghostDisplay = document.getElementById('ghost-value')
 
+    this.dayBTN = document.getElementById('day')
+    this.dayBTN.onclick = this.toggleDayMode.bind(this)
+    this.dayDisplay = document.getElementById('day-value')
+
     this.pressing = {}
+}
+
+App.prototype.focus = function() {
+    if (!document.hasFocus()) {
+        window.focus()
+    }
 }
 
 App.prototype.animate = function () {
@@ -268,6 +283,7 @@ App.prototype.onKeyUp = function (e) {
 }
 
 App.prototype.togglePause = function () {
+    this.focus()
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.board.state = BOARD_STATE.PAUSED
         this.pauseBTN.className = BUTTON_STATE.ON
@@ -290,6 +306,7 @@ App.prototype.setGravity = function () {
         this.togglePause()
     }
     var gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).', this.gravity))
+    this.focus()
     if (gravity != NaN && gravity >= 1 && gravity <= 20) {
         this.gravity = gravity
         this.board.config(gravity, this.ghost)
@@ -311,6 +328,20 @@ App.prototype.openStatistics = function () {
         this.togglePause()
     }
     alert(this.board.statistics.toString())
+    this.focus()
+}
+
+App.prototype.toggleDayMode = function () {
+    if (this.board.state == BOARD_STATE.PLAYING) {
+        this.togglePause()
+    }
+    if (document.body.className) {
+        document.body.className = ''
+        setTextContent(this.dayDisplay, DAY_NIGHT.NIGHT)
+    }else {
+        document.body.className = 'day'
+        setTextContent(this.dayDisplay, DAY_NIGHT.DAY)
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
