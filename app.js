@@ -135,6 +135,7 @@ var KEYMAP = {
     32: CONTROLS.HARD_DROP,
     40: CONTROLS.SOFT_DROP,
     27: CONTROLS.PAUSE,
+    81: CONTROLS.PAUSE,
     82: CONTROLS.RESET,
     83: CONTROLS.STATISTICS
 }
@@ -199,6 +200,7 @@ App.prototype.animate = function () {
 }
 
 App.prototype.onKeyDown = function (e) {
+    console.log(e.keyCode)
     var control = KEYMAP[e.keyCode]
     if (control && !(e.keyCode in this.pressing)) {
         this.pressing[e.keyCode] = 0

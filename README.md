@@ -12,5 +12,6 @@
   * 홀드: `Left Shift`, `C Key`
   * 소프트 드랍: `Arrow Down`
   * 하드 드랍: `Space`
-* 일시정지: `Esc`
+* 일시정지: `Q Key`, `Esc`
 * 초기화: `R Key`
+* 통계: `S Key`
