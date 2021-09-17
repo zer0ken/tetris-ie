@@ -119,7 +119,8 @@ var CONTROLS = {
     HARD_DROP: 'hardDrop',
     HOLD: 'hold',
     PAUSE: 'pause',
-    RESET: 'reset'
+    RESET: 'reset',
+    STATISTICS: 'statistics'
 }
 
 var KEYMAP = {
@@ -134,7 +135,8 @@ var KEYMAP = {
     32: CONTROLS.HARD_DROP,
     40: CONTROLS.SOFT_DROP,
     27: CONTROLS.PAUSE,
-    82: CONTROLS.RESET
+    82: CONTROLS.RESET,
+    83: CONTROLS.STATISTICS
 }
 
 var BUTTON_STATE = {
@@ -159,6 +161,9 @@ function App() {
 
     this.resetBTN = document.getElementById('reset')
     this.resetBTN.onclick = this.reset.bind(this)
+
+    this.statisticsBTN = document.getElementById('statistics')
+    this.statisticsBTN.onclick = this.openStatistics.bind(this)
 
     this.gravityBTN = document.getElementById('gravity')
     this.gravityBTN.onclick = this.setGravity.bind(this)
@@ -210,6 +215,10 @@ App.prototype.control = function (control) {
             break
         case CONTROLS.RESET:
             this.reset()
+            break
+        case CONTROLS.STATISTICS:
+            this.pressing = {}
+            this.openStatistics()
             break
     }
     if (this.board.state == BOARD_STATE.PLAYING) {
@@ -284,6 +293,13 @@ App.prototype.toggleGhost = function () {
     this.ghost = !this.ghost
     setTextContent(this.ghostDisplay, this.ghost ? 'ON' : 'OFF')
     this.board.config(this.gravity, this.ghost)
+}
+
+App.prototype.openStatistics = function () {
+    if (this.board.state == BOARD_STATE.PLAYING) {
+        this.togglePause()
+    }
+    alert(this.board.statistics.toString())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -431,6 +447,8 @@ function Board(gravity, ghost) {
     this.scoreDisplay = document.getElementById('score')
     this.scoreList = nodeListToArray(document.getElementById('score-list').childNodes)
 
+    this.statistics = new Statistics
+
     this.init()
 }
 
@@ -470,6 +488,7 @@ Board.prototype.init = function () {
 
     this.spinned = false
     this.initScore()
+    this.statistics.init()
 }
 
 Board.prototype.config = function (gravity, ghost) {
@@ -611,6 +630,7 @@ Board.prototype.initScore = function () {
 }
 
 Board.prototype.addScore = function (scoreData) {
+    this.statistics.collect(scoreData)
     if (scoreData.score) {
         this.score += scoreData.score
         setTextContent(this.scoreDisplay, this.score)
@@ -730,11 +750,13 @@ Board.prototype.hold = function () {
 // Statistics
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// TODO implement this!!
-
 function Statistics() {
+    this.init()
+}
+
+Statistics.prototype.init = function () {
     // land score
-    this.dropHeight = 0
+    this.height = 0
     this.landed = 0
 
     // clear score
@@ -754,9 +776,54 @@ function Statistics() {
 }
 
 Statistics.prototype.collect = function (scoreData) {
-    switch (scoreData.type) {
-
+    var type = scoreData.type
+    if (type == SCORE_TYPE.LAND) {
+        this.landed++
+    } else if (type == SCORE_TYPE.DROP) {
+        this.height += scoreData.score
+    } else if (type == SCORE_TYPE.SINGLE_LINE) {
+        this.cleared += 1
+        this.single++
+    } else if (type == SCORE_TYPE.DOUBLE_LINE) {
+        this.cleared += 2
+        this.double++
+    } else if (type == SCORE_TYPE.TRIPLE_LINE) {
+        this.cleared += 3
+        this.triple++
+    } else if (type == SCORE_TYPE.TETRIS) {
+        this.cleared += 4
+        this.tetris++
+    } else if (type == SCORE_TYPE.T_SPIN_SINGLE) {
+        this.cleared += 1
+        this.tSpinSingle++
+    } else if (type == SCORE_TYPE.T_SPIN_DOUBLE) {
+        this.cleared += 2
+        this.tSpinDouble++
+    } else if (type == SCORE_TYPE.T_SPIN_TRIPLE) {
+        this.cleared += 3
+        this.tSpinTriple++
+    } else if (type == SCORE_TYPE.PERFECT_CLEAR) {
+        this.perfectClear++
+    } else if (type == SCORE_TYPE.COMBO) {
+        this.maxCombo = Math.max(this.maxCombo, scoreData.count)
+        this.comboScore += scoreData.score
     }
+}
+
+Statistics.prototype.toString = function () {
+    return ('[ 착지 기록 ]'
+        + '\n  * 착지 개수:  ' + this.landed + ' 개'
+        + '\n  * 하드 드랍한 높이:  ' + this.height + ' 블럭'
+        + '\n\n[ 제거 기록 ]'
+        + '\n  * 제거한 줄:  ' + this.cleared + ' 줄'
+        + '\n\n  * Single:  ' + this.single + ' 회\t/ T-Spin:  ' + this.tSpinSingle + ' 회'
+        + '\n  * Double:  ' + this.double + ' 회\t/ T-Spin:  ' + this.tSpinDouble + ' 회'
+        + '\n  * Triple:  ' + this.triple + ' 회\t/ T-Spin:  ' + this.tSpinTriple + ' 회'
+        + '\n  * Tetris:  ' + this.tetris + ' 회'
+        + '\n\n  * 퍼펙트 클리어:  ' + this.perfectClear + ' 회'
+        + '\n\n[ 연쇄 기록 ]'
+        + '\n  * 최장 연쇄 횟수:  ' + this.maxCombo + ' 회'
+        + '\n  * 총 연쇄 점수:  ' + this.comboScore + ' 점')
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
