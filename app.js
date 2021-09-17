@@ -203,7 +203,6 @@ App.prototype.animate = function () {
 }
 
 App.prototype.onKeyDown = function (e) {
-    console.log(e.keyCode)
     var control = KEYMAP[e.keyCode]
     if (control && !(e.keyCode in this.pressing)) {
         this.pressing[e.keyCode] = 0
