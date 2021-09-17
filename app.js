@@ -190,6 +190,7 @@ App.prototype.animate = function () {
     if (this.board.state == BOARD_STATE.PLAYING) {
         if (!document.hasFocus()) {
             this.togglePause()
+            return
         }
         var pressingKeys = Object.keys(this.pressing)
         for (var i = 0; i < pressingKeys.length; i++) {
