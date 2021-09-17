@@ -39,6 +39,7 @@ function getTextContent(el) {
 }
 
 (function () {
+    // console.log
     var alertFallback = true;
     if (typeof console === "undefined" || typeof console.log === "undefined") {
         console = {};
@@ -50,6 +51,8 @@ function getTextContent(el) {
             console.log = function () { };
         }
     }
+    
+    // Function.prototype.bind
     if (!Function.prototype.bind) {
         Function.prototype.bind = function (oThis) {
             if (typeof this !== 'function') {
@@ -75,18 +78,21 @@ function getTextContent(el) {
         };
     }
 
+    // window.addEventListener
     if (!window.addEventListener && window.attachEvent) {
         window.addEventListener = function (eventName, callback) {
             document.attachEvent('on' + eventName, callback)
         }
     }
 
+    // window.requestAnimationFrame
     if (!window.requestAnimationFrame) {
         window.requestAnimationFrame = function (callback) {
             setTimeout(callback, 1000 / FPS)
         }
     }
 
+    // Object.keys
     if (!Object.keys) {
         Object.keys = function (obj) {
             var keys = [];
