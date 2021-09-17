@@ -337,9 +337,15 @@ var SCORE_TYPE = {
     },
     COMBO: function (lastCombo) {
         if (lastCombo) {
-            return { type: 'Combo', score: lastCombo.score, description: 'COMBO ×' + lastCombo.count + ' +', count: lastCombo.count + 1 }
+            lastCombo.count++
+            return lastCombo
         }
-        return { type: 'Combo', score: 0, count: 0 }
+        return {
+            type: 'Combo',
+            score: 0,
+            description: function () { return 'COMBO ×' + this.count + ' +' },
+            count: 0
+        }
     }
 }
 
@@ -511,22 +517,25 @@ Board.prototype.land = function () {
     }
     this.holdSwapped = false
 
+    // land score
     this.addScore(SCORE_TYPE.LAND())
     this.blocks += 4
     if (cleared.length) {
+        // clear score
         var scoreList = tSpin ? T_SPIN_SCORE : LINE_SCORE
         this.blocks -= cleared.length * BOARD_COL
         var scoreData = scoreList[cleared.length]()
-        console.log(scoreData, this.gravity)
         scoreData.score *= this.gravity
         this.addScore(scoreData)
 
+        // combo score
         this.combo = SCORE_TYPE.COMBO(this.combo)
         if (this.combo.count >= 2) {
             this.addScore(this.combo)
         }
         this.combo.score += scoreData.score
-        
+
+        // perfect clear score
         if (this.blocks == 0) {
             var scoreData = SCORE_TYPE.PERFECT_CLEAR()
             scoreData.score *= this.gravity
@@ -555,6 +564,12 @@ Board.prototype.addScore = function (scoreData) {
         setTextContent(this.scoreDisplay, this.score)
     }
     if (scoreData.description) {
+        var description
+        if (typeof scoreData.description == 'function') {
+            description = scoreData.description()
+        } else {
+            description = scoreData.description
+        }
         for (var i = this.scoreList.length - 1; i > 0; i--) {
             var liAbove = this.scoreList[i - 1]
             var li = this.scoreList[i]
@@ -563,7 +578,7 @@ Board.prototype.addScore = function (scoreData) {
             setTextContent(li, getTextContent(liAbove))
         }
         var li = this.scoreList[0]
-        setTextContent(li, scoreData.description + scoreData.score)
+        setTextContent(li, description + scoreData.score)
         li.className = scoreData.tier ? scoreData.tier : ''
     }
 }
