@@ -937,20 +937,20 @@ function Tetrimino(row, col) {
 
 var GHOST = 'ghost'
 Tetrimino.prototype.type = GHOST
-Tetrimino.prototype.blocks = [[block(1, 0), block(0, 1), block(1, 2), block(0, 3)]]
+Tetrimino.prototype.blocks = [[block(1, 0), block(0, 1), block(1, 2), block(0, 3)]] // 10 01 12 03
 Tetrimino.prototype.kicks = [
     {   // from 0
-        '1': [block(0, -1), block(-1, -1), block(2, 0), block(2, -1)],
-        '-1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)]
+        '1': [block(0, -1), block(-1, -1), block(2, 0), block(2, -1)],  // 0-1 -1-1 20 2-1  (a)
+        '-1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)]     // 01 -11 20 21
     }, {// from 1
-        '1': [block(0, 1), block(1, 1), block(-2, 0), block(-2, 1)],
-        '-1': [block(0, 1), block(1, 1), block(-2, 0), block(-2, 1)]
+        '1': [block(0, 1), block(1, 1), block(-2, 0), block(-2, 1)],    // 01 11 -20 -21    (b)
+        '-1': [block(0, 1), block(1, 1), block(-2, 0), block(-2, 1)]    // 01 11 -20 -21    (b)
     }, {// from 2
-        '1': [block(0, 1), block(1, 1), block(2, 0), block(2, 1)],
-        '-1': [block(0, -1), block(-1, -1), block(2, 0), block(2, -1)]
+        '1': [block(0, 1), block(1, 1), block(2, 0), block(2, 1)],      // 01 11 20 21
+        '-1': [block(0, -1), block(-1, -1), block(2, 0), block(2, -1)]  // 0-1 -1-1 20 2-1  (a)
     }, {// from 3
-        '1': [block(0, -1), block(1, -1), block(-2, 0), block(-2, -1)],
-        '-1': [block(0, -1), block(1, -1), block(-2, 0), block(-2, -1)]
+        '1': [block(0, -1), block(1, -1), block(-2, 0), block(-2, -1)], // 0-1 1-1 -20 -2-1 (c)
+        '-1': [block(0, -1), block(1, -1), block(-2, 0), block(-2, -1)] // 0-1 1-1 -20 -2-1 (c)
     }
 ]
 
@@ -1025,24 +1025,24 @@ IMino.prototype = new Tetrimino(0, 3)
 IMino.prototype.constructor = IMino
 IMino.prototype.type = 'i'
 IMino.prototype.blocks = [
-    [block(1, 0), block(1, 1), block(1, 2), block(1, 3)],
-    [block(0, 2), block(1, 2), block(2, 2), block(3, 2)],
-    [block(2, 0), block(2, 1), block(2, 2), block(2, 3)],
-    [block(0, 1), block(1, 1), block(2, 1), block(3, 1)]
+    [block(1, 0), block(1, 1), block(1, 2), block(1, 3)],   // 10 11 12 13
+    [block(0, 2), block(1, 2), block(2, 2), block(3, 2)],   // 02 12 22 32
+    [block(2, 0), block(2, 1), block(2, 2), block(2, 3)],   // 20 21 22 23
+    [block(0, 1), block(1, 1), block(2, 1), block(3, 1)]    // 01 11 21 31
 ]
 IMino.prototype.kicks = [
     {   // from 0
-        '1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)],
-        '-1': [block(0, -1), block(0, 2), block(-2, -1), block(-1, 2)]
+        '1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)],     // 01 -11 20 21
+        '-1': [block(0, -1), block(0, 2), block(-2, -1), block(-1, 2)]  // 0-1 02 -2-1 -12
     }, {// from 1
-        '1': [block(0, -1), block(0, 2), block(-2, -1), block(1, 2)],
-        '-1': [block(0, 2), block(0, -1), block(-1, 2), block(2, -1)]
+        '1': [block(0, -1), block(0, 2), block(-2, -1), block(1, 2)],   // 0-1 02 -2-1 12
+        '-1': [block(0, 2), block(0, -1), block(-1, 2), block(2, -1)]   // 02 0-1 -12 2-1   (a)
     }, {// from 2
-        '1': [block(0, 2), block(0, -1), block(-1, 2), block(2, -1)],
-        '-1': [block(0, 1), block(0, -2), block(2, 1), block(-1, -2)]
+        '1': [block(0, 2), block(0, -1), block(-1, 2), block(2, -1)],   // 02 0-1 -12 2-1   (a)
+        '-1': [block(0, 1), block(0, -2), block(2, 1), block(-1, -2)]   // 01 0-2 21 -1-2   (b)
     }, {// from 3
-        '1': [block(0, 1), block(0, -2), block(2, 1), block(-1, -2)],
-        '-1': [block(0, -2), block(0, 1), block(1, -2), block(-2, 1)]
+        '1': [block(0, 1), block(0, -2), block(2, 1), block(-1, -2)],   // 01 0-2 21 -1-2   (b)
+        '-1': [block(0, -2), block(0, 1), block(1, -2), block(-2, 1)]   // 0-2 01 1-2 -21
     }
 ]
 
@@ -1051,10 +1051,10 @@ JMino.prototype = new Tetrimino(0, 3)
 JMino.prototype.constructor = JMino
 JMino.prototype.type = 'j'
 JMino.prototype.blocks = [
-    [block(0, 0), block(1, 0), block(1, 1), block(1, 2)],
-    [block(0, 1), block(0, 2), block(1, 1), block(2, 1)],
-    [block(1, 0), block(1, 1), block(1, 2), block(2, 2)],
-    [block(0, 1), block(1, 1), block(2, 0), block(2, 1)]
+    [block(0, 0), block(1, 0), block(1, 1), block(1, 2)],   // 00 10 11 12
+    [block(0, 1), block(0, 2), block(1, 1), block(2, 1)],   // 01 02 11 21
+    [block(1, 0), block(1, 1), block(1, 2), block(2, 2)],   // 10 11 12 22
+    [block(0, 1), block(1, 1), block(2, 0), block(2, 1)]    // 01 11 20 21
 ]
 
 function LMino() { }
@@ -1062,16 +1062,16 @@ LMino.prototype = new Tetrimino(0, 3)
 LMino.prototype.constructor = LMino
 LMino.prototype.type = 'l'
 LMino.prototype.blocks = [
-    [block(0, 2), block(1, 0), block(1, 1), block(1, 2)],
-    [block(0, 1), block(1, 1), block(2, 1), block(2, 2)],
-    [block(1, 0), block(1, 1), block(1, 2), block(2, 0)],
-    [block(0, 0), block(0, 1), block(1, 1), block(2, 1)]
+    [block(0, 2), block(1, 0), block(1, 1), block(1, 2)],   // 02 10 11 12
+    [block(0, 1), block(1, 1), block(2, 1), block(2, 2)],   // 01 11 21 22
+    [block(1, 0), block(1, 1), block(1, 2), block(2, 0)],   // 01 11 12 20
+    [block(0, 0), block(0, 1), block(1, 1), block(2, 1)]    // 00 01 11 21
 ]
 function OMino() { }
 OMino.prototype = new Tetrimino(0, 4)
 OMino.prototype.constructor = OMino
 OMino.prototype.type = 'o'
-OMino.prototype.blocks = [[block(0, 0), block(0, 1), block(1, 0), block(1, 1)]]
+OMino.prototype.blocks = [[block(0, 0), block(0, 1), block(1, 0), block(1, 1)]] // 00 01 10 11
 OMino.prototype.kicks = []
 
 function SMino() { }
@@ -1079,10 +1079,10 @@ SMino.prototype = new Tetrimino(0, 3)
 SMino.prototype.constructor = SMino
 SMino.prototype.type = 's'
 SMino.prototype.blocks = [
-    [block(0, 1), block(0, 2), block(1, 0), block(1, 1)],
-    [block(0, 1), block(1, 1), block(1, 2), block(2, 2)],
-    [block(1, 1), block(1, 2), block(2, 0), block(2, 1)],
-    [block(0, 0), block(1, 0), block(1, 1), block(2, 1)]
+    [block(0, 1), block(0, 2), block(1, 0), block(1, 1)],   // 01 02 10 11
+    [block(0, 1), block(1, 1), block(1, 2), block(2, 2)],   // 01 11 12 22
+    [block(1, 1), block(1, 2), block(2, 0), block(2, 1)],   // 11 12 20 21
+    [block(0, 0), block(1, 0), block(1, 1), block(2, 1)]    // 00 10 11 21
 ]
 
 function TMino() { }
@@ -1090,12 +1090,12 @@ TMino.prototype = new Tetrimino(0, 3)
 TMino.prototype.constructor = TMino
 TMino.prototype.type = 't'
 TMino.prototype.blocks = [
-    [block(0, 1), block(1, 0), block(1, 1), block(1, 2)],
-    [block(0, 1), block(1, 1), block(1, 2), block(2, 1)],
-    [block(1, 0), block(1, 1), block(1, 2), block(2, 1)],
-    [block(0, 1), block(1, 0), block(1, 1), block(2, 1)]
+    [block(0, 1), block(1, 0), block(1, 1), block(1, 2)],   // 01 10 11 12
+    [block(0, 1), block(1, 1), block(1, 2), block(2, 1)],   // 01 11 12 21
+    [block(1, 0), block(1, 1), block(1, 2), block(2, 1)],   // 10 11 12 21
+    [block(0, 1), block(1, 0), block(1, 1), block(2, 1)]    // 01 10 11 21
 ]
-TMino.prototype.corners = [block(0, 0), block(0, 2), block(2, 0), block(2, 2)]
+TMino.prototype.corners = [block(0, 0), block(0, 2), block(2, 0), block(2, 2)]  // 00 02 20 22
 TMino.prototype.isStucked = function (board) {
     var blocked = 0
     for (var i = 0; i < this.corners.length; i++) {
@@ -1117,8 +1117,8 @@ ZMino.prototype = new Tetrimino(0, 3)
 ZMino.prototype.constructor = ZMino
 ZMino.prototype.type = 'z'
 ZMino.prototype.blocks = [
-    [block(0, 0), block(0, 1), block(1, 1), block(1, 2)],
-    [block(0, 2), block(1, 1), block(1, 2), block(2, 1)],
-    [block(1, 0), block(1, 1), block(2, 1), block(2, 2)],
-    [block(0, 1), block(1, 0), block(1, 1), block(2, 0)]
+    [block(0, 0), block(0, 1), block(1, 1), block(1, 2)],   // 00 01 11 12
+    [block(0, 2), block(1, 1), block(1, 2), block(2, 1)],   // 02 11 12 21
+    [block(1, 0), block(1, 1), block(2, 1), block(2, 2)],   // 10 11 21 22
+    [block(0, 1), block(1, 0), block(1, 1), block(2, 0)]    // 01 10 11 20
 ]
