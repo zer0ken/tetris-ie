@@ -51,7 +51,7 @@ function getTextContent(el) {
             console.log = function () { };
         }
     }
-    
+
     // Function.prototype.bind
     if (!Function.prototype.bind) {
         Function.prototype.bind = function (oThis) {
@@ -192,7 +192,7 @@ function App() {
     this.pressing = {}
 }
 
-App.prototype.focus = function() {
+App.prototype.focus = function () {
     if (!document.hasFocus()) {
         window.focus()
     }
@@ -338,7 +338,7 @@ App.prototype.toggleDayMode = function () {
     if (document.body.className) {
         document.body.className = ''
         setTextContent(this.dayDisplay, DAY_NIGHT.NIGHT)
-    }else {
+    } else {
         document.body.className = 'day'
         setTextContent(this.dayDisplay, DAY_NIGHT.DAY)
     }
@@ -369,11 +369,20 @@ var SCORE_TYPE = {
     DOUBLE_LINE: 'Double Line',
     TRIPLE_LINE: 'Triple Line',
     TETRIS: 'Tetris',
+    T_SPIN_MINI_ZERO: 'T-Spin Mini Zero',
+    T_SPIN_ZERO: 'T-Spin Zero',
+    T_SPIN_MINI_SINGLE: 'T-Spin Mini Single',
     T_SPIN_SINGLE: 'T-Spin Single',
+    T_SPIN_MINI_DOUBLE: 'T-Spin Mini Double',
     T_SPIN_DOUBLE: 'T-Spin Double',
     T_SPIN_TRIPLE: 'T-Spin Triple',
-    PERFECT_CLEAR: 'Perfect Clear',
-    COMBO: 'Combo'
+    PERFECT_CLEAR_SINGLE: 'Perfect Clear Single',
+    PERFECT_CLEAR_DOUBLE: 'Perfect Clear Double',
+    PERFECT_CLEAR_TRIPLE: 'Perfect Clear Triple',
+    PERFECT_CLEAR_TETRIS: 'Perfect Clear Tetris',
+    PERFECT_CLEAR_BACK_TO_BACK: 'Perfect Clear Back-to-Back',
+    COMBO: 'Combo',
+    BACK_TO_BACK: 'Back-to-Back'
 }
 
 var SCORE_OBJECT = {
@@ -406,17 +415,45 @@ var SCORE_OBJECT = {
             description: function () { return 'TRIPLE +' + this.score }
         }
     },
+    T_SPIN_MINI_ZERO: function () {
+        return {
+            type: SCORE_TYPE.T_SPIN_MINI_ZERO,
+            score: 100,
+            description: function () { return 'T SPIN MINI ZERO +' + this.score }
+        }
+    },
+    T_SPIN_ZERO: function () {
+        return {
+            type: SCORE_TYPE.T_SPIN_ZERO,
+            score: 400,
+            description: function () { return 'T SPIN ZERO +' + this.score }
+        }
+    },
+    T_SPIN_MINI_SINGLE: function () {
+        return {
+            type: SCORE_TYPE.T_SPIN_MINI_SINGLE,
+            score: 200,
+            description: function () { return 'T SPIN MINI SINGLE +' + this.score }
+        }
+    },
     T_SPIN_SINGLE: function () {
         return {
             type: SCORE_TYPE.T_SPIN_SINGLE,
-            score: 500,
+            score: 800,
             description: function () { return 'T SPIN SINGLE +' + this.score }
+        }
+    },
+    T_SPIN_MINI_DOUBLE: function () {
+        return {
+            type: SCORE_TYPE.T_SPIN_MINI_DOUBLE,
+            score: 400,
+            description: function () { return 'T SPIN MINI DOUBLE +' + this.score }
         }
     },
     T_SPIN_DOUBLE: function () {
         return {
             type: SCORE_TYPE.T_SPIN_DOUBLE,
-            score: 1000,
+            score: 1200,
             tier: 'silver',
             description: function () { return 'T SPIN DOUBLE +' + this.score }
         }
@@ -424,7 +461,7 @@ var SCORE_OBJECT = {
     T_SPIN_TRIPLE: function () {
         return {
             type: SCORE_TYPE.T_SPIN_TRIPLE,
-            score: 1500,
+            score: 1600,
             tier: 'gold',
             description: function () { return 'T SPIN TRIPLE +' + this.score }
         }
@@ -432,29 +469,56 @@ var SCORE_OBJECT = {
     TETRIS: function () {
         return {
             type: SCORE_TYPE.TETRIS,
-            score: 1000,
+            score: 800,
             tier: 'gold',
             description: function () { return 'TETRIS +' + this.score }
         }
     },
-    PERFECT_CLEAR: function () {
+    PERFECT_CLEAR_SINGLE: function () {
         return {
-            type: SCORE_TYPE.PERFECT_CLEAR,
-            score: 10000,
+            type: SCORE_TYPE.PERFECT_CLEAR_SINGLE,
+            score: 800,
             tier: 'aqua',
-            description: function () { return 'PERFECT CLEAR +' + this.score }
+            description: function () { return 'PERFECT CLEAR SINGLE +' + this.score }
+        }
+    },
+    PERFECT_CLEAR_DOUBLE: function () {
+        return {
+            type: SCORE_TYPE.PERFECT_CLEAR_DOUBLE,
+            score: 1200,
+            tier: 'aqua',
+            description: function () { return 'PERFECT CLEAR DOUBLE +' + this.score }
+        }
+    },
+    PERFECT_CLEAR_TRIPLE: function () {
+        return {
+            type: SCORE_TYPE.PERFECT_CLEAR_TRIPLE,
+            score: 1800,
+            tier: 'aqua',
+            description: function () { return 'PERFECT CLEAR TRIPLE +' + this.score }
+        }
+    },
+    PERFECT_CLEAR_TETRIS: function () {
+        return {
+            type: SCORE_TYPE.PERFECT_CLEAR_TETRIS,
+            score: 2000,
+            tier: 'aqua',
+            description: function () { return 'PERFECT CLEAR TETRIS +' + this.score }
+        }
+    },
+    PERFECT_CLEAR_BACK_TO_BACK: function () {
+        return {
+            type: SCORE_TYPE.PERFECT_CLEAR_BACK_TO_BACK,
+            score: 3200,
+            tier: 'aqua',
+            description: function () { return 'PERFECT CLEAR BACK-TO-BACK +' + this.score }
         }
     },
     COMBO: function (lastCombo) {
-        if (lastCombo) {
-            lastCombo.count++
-            return lastCombo
-        }
         return {
             type: SCORE_TYPE.COMBO,
-            score: 0,
-            count: 0,
-            description: function () { return 'COMBO ×' + this.count + ' +' + this.score }
+            score: 50 * lastCombo,
+            description: function () { return 'COMBO ×' + lastCombo + ' +' + this.score }
         }
     }
 }
@@ -485,7 +549,7 @@ function Board(gravity, ghost) {
     this.queue = new Queue()
     this.holded = new Figure(document.getElementById('hold'))
 
-    this.spinned = false
+    this.kicked = false
     this.scoreDisplay = document.getElementById('score')
     this.scoreList = nodeListToArray(document.getElementById('score-list').childNodes)
 
@@ -528,7 +592,7 @@ Board.prototype.init = function () {
     this.holded.setTetrimino(new Tetrimino)
     this.holdSwapped = false
 
-    this.spinned = false
+    this.kicked = false
     this.initScore()
     this.statistics.init()
 }
@@ -561,7 +625,7 @@ Board.prototype.tick = function () {
         this.drop()
     }
     if (!this.falling) {
-        this.spinned = false
+        this.kicked = false
         this.falling = this.queue.shift()
         if (this.falling.isObstructed(this.board, 0, 0, 0)) {
             this.state = BOARD_STATE.DEAD
@@ -580,7 +644,7 @@ Board.prototype.drop = function () {
         this.falling.erase(this.board)
         this.falling.row++
         this.falling.draw(this.board)
-        this.spinned = false
+        this.kicked = false
     } else {
         this.land()
     }
@@ -589,11 +653,16 @@ Board.prototype.drop = function () {
 Board.prototype.land = function () {
     var shape = this.falling.blocks[this.falling.rotation]
     var over = false
-    var tSpin = (
-        this.spinned
-        && this.falling.isStucked
-        && this.falling.isStucked(this.board)
-    )
+    var tSpinState
+    if (this.falling.isTSpin) {
+        var tSpinState = this.falling.isTSpin()
+        if (tSpinState == T_SPIN_STATE.NOT_T_SPIN
+            && this.kicked
+        && Math.abs) {
+            
+        }
+    }
+
     var cleared = []
     for (var i = 0; i < shape.length; i++) {
         var block = shape[i];
@@ -642,11 +711,14 @@ Board.prototype.land = function () {
         this.addScore(scoreData)
 
         // combo score
-        this.combo = SCORE_OBJECT.COMBO(this.combo)
-        if (this.combo.count >= 2) {
-            this.addScore(this.combo)
+        if (this.combo) {
+            var combo = SCORE_OBJECT.COMBO(this.combo)
+            combo.score *= this.gravity
+            this.addScore(combo)
+            this.combo++
+        } else {
+            this.combo = 1
         }
-        this.combo.score += scoreData.score
 
         // perfect clear score
         if (this.blocks == 0) {
@@ -655,7 +727,7 @@ Board.prototype.land = function () {
             this.addScore(scoreData)
         }
     } else {
-        this.combo = SCORE_OBJECT.COMBO()
+        this.combo = 0
     }
     this.falling = null
 }
@@ -727,7 +799,7 @@ Board.prototype.softDrop = function () {
         this.falling.row++
         this.falling.draw(this.board)
         this.leftFrames = this.framePerTick
-        this.spinned = false
+        this.kicked = false
     }
 }
 
@@ -742,7 +814,7 @@ Board.prototype.hardDrop = function () {
         } while (!this.falling.isObstructed(this.board, 0, 1, 0))
         this.falling.draw(this.board)
         this.addScore(SCORE_OBJECT.DROP(height))
-        this.spinned = false
+        this.kicked = false
     }
     this.land()
     this.leftFrames = 0
@@ -754,15 +826,17 @@ Board.prototype.move = function (delta) {
         this.falling.col += delta
         this.updateGhost()
         this.falling.draw(this.board)
-        this.spinned = false
+        this.kicked = false
     }
 }
 
 Board.prototype.rotate = function (delta) {
     this.falling.erase(this.board)
-    if (this.falling.rotate(this.board, delta)) {
+    var result = this.falling.rotate(this.board, delta)
+    if (result) {
         this.updateGhost()
-        this.spinned = true
+        this.kicked = result
+        console.log(result)
     }
     this.falling.draw(this.board)
 }
@@ -785,7 +859,7 @@ Board.prototype.hold = function () {
     }
     this.holded.setTetrimino(falling)
     this.holdSwapped = true
-    this.spinned = false
+    this.kicked = false
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1013,10 +1087,11 @@ Tetrimino.prototype.isObstructed = function (board, rotationOffset, rowOffset, c
 
 Tetrimino.prototype.rotate = function (board, delta) {
     var failed = this.isObstructed(board, delta, 0, 0)
+    var kick = block(0, 0)
     if (failed && this.kicks[this.rotation]) {
         var kicks = this.kicks[this.rotation][delta]
         for (var i = 0; i < kicks.length; i++) {
-            var kick = kicks[i];
+            kick = kicks[i];
             if (!this.isObstructed(board, delta, kick.row, kick.col)) {
                 this.row += kick.row
                 this.col += kick.col
@@ -1029,7 +1104,7 @@ Tetrimino.prototype.rotate = function (board, delta) {
         var maxRotation = this.blocks.length
         this.rotation = ((this.rotation + delta) % maxRotation + maxRotation) % maxRotation
     }
-    return !failed
+    return !failed && kick 
 }
 
 Tetrimino.prototype.draw = function (board) {
@@ -1137,21 +1212,37 @@ TMino.prototype.blocks = [
     [block(1, 0), block(1, 1), block(1, 2), block(2, 1)],   // 10 11 12 21
     [block(0, 1), block(1, 0), block(1, 1), block(2, 1)]    // 01 10 11 21
 ]
-TMino.prototype.corners = [block(0, 0), block(0, 2), block(2, 0), block(2, 2)]  // 00 02 20 22
-TMino.prototype.isStucked = function (board) {
-    var blocked = 0
-    for (var i = 0; i < this.corners.length; i++) {
-        var corner = this.corners[i];
+TMino.prototype.corners = [
+    [block(0, 0), block(0, 2), block(2, 2), block(2, 0)],
+    [block(0, 2), block(2, 2), block(2, 0), block(0, 0)],
+    [block(2, 2), block(2, 0), block(0, 0), block(0, 2)],
+    [block(2, 0), block(0, 0), block(0, 2), block(2, 2)]
+]
+TMino.prototype.isTSpin = function (board) {
+    var front = 0
+    var back = 0
+    var corners = this.corners[this.rotation]
+    for (var i = 0; i < corners.length; i++) {
+        var corner = corners[i];
         var row = this.row + corner.row
         var col = this.col + corner.col
         if (!isInBoard(row, col) || board[row][col].blocked) {
-            blocked++
-        }
-        if (blocked >= 3) {
-            return true
+            i <= 1 ? front++ : back++
         }
     }
-    return false
+    if (front == 2 && back >= 1) {
+        return T_SPIN_STATE.T_SPIN
+    }
+    if (back == 2 && front >= 1) {
+        return T_SPIN_STATE.T_SPIN_MINI
+    }
+    return T_SPIN_STATE.NOT_T_SPIN
+}
+
+var T_SPIN_STATE = {
+    NOT_T_SPIN: 0,
+    T_SPIN_MINI: 1,
+    T_SPIN: 2
 }
 
 function ZMino() { }
