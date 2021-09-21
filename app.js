@@ -729,32 +729,28 @@ Board.prototype.land = function () {
     // land score
     this.addScore(SCORE_OBJECT.LAND())
     this.blocks += 4
-    if (isTSpin) {
-        var scoreList = isTSpin == T_SPIN_STATE.T_SPIN_MINI
-            ? T_SPIN_MINI_SCORE
-            : T_SPIN_SCORE
-        var tSpinScore = scoreList[cleared.length]()
-        tSpinScore.score *= this.gravity
-        this.addScore(tSpinScore)
-        if (cleared.length >= 1) {
-            if (this.backToBack) {
-                this.addScore(SCORE_OBJECT.BACK_TO_BACK(tSpinScore.score))
-            }
-            this.backToBack = true
+    if (cleared.length || isTSpin) {
+        var primaryScore
+        if (isTSpin) {
+            // t-spin score
+            var scoreList = isTSpin == T_SPIN_STATE.T_SPIN_MINI
+                ? T_SPIN_MINI_SCORE
+                : T_SPIN_SCORE
+            primaryScore = scoreList[cleared.length]()
+            primaryScore.score *= this.gravity
+            this.addScore(primaryScore)
+        } else {
+            // clear score
+            this.blocks -= cleared.length * BOARD_COL
+            primaryScore = LINE_SCORE[cleared.length]()
+            primaryScore.score *= this.gravity
+            this.addScore(primaryScore)
         }
-    } else if (cleared.length) {
-        // clear score
-        var isTSpin = LINE_SCORE
-        this.blocks -= cleared.length * BOARD_COL
-        var clearScore = isTSpin[cleared.length]()
-        clearScore.score *= this.gravity
-        this.addScore(clearScore)
-
         // combo score
-        if (this.combo) {
-            var combo = SCORE_OBJECT.COMBO(this.combo)
-            combo.score *= this.gravity
-            this.addScore(combo)
+        if (cleared.length && this.combo) {
+            var comboScore = SCORE_OBJECT.COMBO(this.combo)
+            comboScore.score *= this.gravity
+            this.addScore(comboScore)
             this.combo++
         } else {
             this.combo = 1
@@ -762,7 +758,7 @@ Board.prototype.land = function () {
 
         // perfect clear score
         if (this.blocks == 0) {
-            var perfectClearScore = this.backToBack
+            var perfectClearScore = primaryScore.type == SCORE_TYPE.TETRIS
                 ? SCORE_OBJECT.PERFECT_CLEAR_BACK_TO_BACK
                 : PERFECT_CLEAR_SCORE[cleared.length]
             perfectClearScore.score *= this.gravity
@@ -770,12 +766,12 @@ Board.prototype.land = function () {
         }
 
         // back-to-back score
-        if (cleared.length >= 4) {
+        if (cleared.length >= 4 || (isTSpin && cleared.length >= 1)) {
             if (this.backToBack) {
-                this.addScore(SCORE_OBJECT.BACK_TO_BACK(clearScore.score))
+                this.addScore(SCORE_OBJECT.BACK_TO_BACK(primaryScore.score))
             }
             this.backToBack = true
-        } else {
+        } else if (cleared.length) {
             this.backToBack = false
         }
     } else {
@@ -934,9 +930,15 @@ Statistics.prototype.init = function () {
     this.triple = 0
     this.tetris = 0
     this.tSpinSingle = 0
+    this.tSpinSingleMini = 0
     this.tSpinDouble = 0
+    this.tSpinDoubleMini = 0
     this.tSpinTriple = 0
-    this.perfectClear = 0
+    this.tSpinTripleMini = 0
+    this.perfectClearSingle = 0
+    this.perfectClearDouble = 0
+    this.perfectClearTriple = 0
+    this.perfectClearTetris = 0
 
     // combo score
     this.maxCombo = 0
