@@ -290,6 +290,10 @@ App.prototype.togglePause = function () {
     } else if (this.board.state == BOARD_STATE.PAUSED) {
         this.board.state = BOARD_STATE.PLAYING
         this.pauseBTN.className = BUTTON_STATE.OFF
+        if (this.statisticsWindow) {
+            this.statisticsWindow.close()
+            this.statisticsWindow = null
+        }
     }
 }
 
@@ -327,9 +331,11 @@ App.prototype.openStatistics = function () {
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.togglePause()
     }
-    var newWindow = window.open('', '통계')
-    newWindow.document.body.innerHTML = this.board.statistics.toString()
-    newWindow.focus()
+    if (!this.statisticsWindow) {
+        this.statisticsWindow = window.open('', '통계', 'top=100, left=280, width=400, height=600, status=no, menubar=no, toolbar=no, resizable=no')
+    }
+    this.statisticsWindow.document.body.innerHTML = this.board.statistics.toString()
+    this.statisticsWindow.focus()
 }
 
 App.prototype.toggleDayMode = function () {
@@ -912,7 +918,7 @@ Statistics.prototype.collect = function (scoreData) {
         this.data[type]++
     }
     if (scoreData.cleared) {
-        this.data.cleared += scoreData.cleareds
+        this.data.cleared += scoreData.cleared
     }
     if (scoreData.perfectClear) {
         this.data.perfectCleared++
