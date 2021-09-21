@@ -39,7 +39,7 @@ li {
 
 #left {
     text-align: right;
-    width: 220px;
+    width: 240px;
 }
 
 #center { width: 280px; }
@@ -166,6 +166,8 @@ body.day #score {
 }
 
 body.day #left li.silver { color: #444444; }
+body.day #left li.gold { color: #eb6105; }
+body.day #left li.aqua { color: #ff00aa; }
 
 body.day .button:hover {
     background-color: #303245;
@@ -178,8 +180,8 @@ body.day .on {
     color: white;
 }
 
-body.day td { background: #eef5ff; }
-body.day td.over { background: #e3eeff; }
+body.day td { background: #e9f1ff; }
+body.day td.over { background: #d4e5ff; }
 body.day td.ghost { 
     box-sizing: border-box;
     border: 1px solid #538faa;
