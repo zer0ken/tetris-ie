@@ -394,126 +394,98 @@ var SCORE_OBJECT = {
     },
     SINGLE_LINE: function () {
         return {
-            type: SCORE_TYPE.SINGLE_LINE,
-            score: 100,
+            type: SCORE_TYPE.SINGLE_LINE, score: 100, cleared: 1,
             description: function () { return 'SINGLE +' + this.score }
         }
     },
     DOUBLE_LINE: function () {
         return {
-            type: SCORE_TYPE.DOUBLE_LINE,
-            score: 300,
+            type: SCORE_TYPE.DOUBLE_LINE, score: 300, cleared: 2,
             tier: 'silver',
             description: function () { return 'DOUBLE +' + this.score }
         }
     },
     TRIPLE_LINE: function () {
         return {
-            type: SCORE_TYPE.TRIPLE_LINE,
-            score: 500,
-            tier: 'gold',
+            type: SCORE_TYPE.TRIPLE_LINE, score: 500, tier: 'gold', cleared: 3,
             description: function () { return 'TRIPLE +' + this.score }
         }
     },
     T_SPIN_MINI_ZERO: function () {
         return {
-            type: SCORE_TYPE.T_SPIN_MINI_ZERO,
-            score: 100,
+            type: SCORE_TYPE.T_SPIN_MINI_ZERO, score: 100,
             description: function () { return 'T SPIN MINI ZERO +' + this.score }
         }
     },
     T_SPIN_ZERO: function () {
         return {
-            type: SCORE_TYPE.T_SPIN_ZERO,
-            score: 400,
+            type: SCORE_TYPE.T_SPIN_ZERO, score: 400,
             description: function () { return 'T SPIN ZERO +' + this.score }
         }
     },
     T_SPIN_MINI_SINGLE: function () {
         return {
-            type: SCORE_TYPE.T_SPIN_MINI_SINGLE,
-            score: 200,
-            tier: 'silver',
+            type: SCORE_TYPE.T_SPIN_MINI_SINGLE, score: 200, tier: 'silver', cleared: 1,
             description: function () { return 'T SPIN MINI SINGLE +' + this.score }
         }
     },
     T_SPIN_SINGLE: function () {
         return {
-            type: SCORE_TYPE.T_SPIN_SINGLE,
-            score: 800,
-            tier: 'gold',
+            type: SCORE_TYPE.T_SPIN_SINGLE, score: 800, tier: 'gold', cleared: 1,
             description: function () { return 'T SPIN SINGLE +' + this.score }
         }
     },
     T_SPIN_MINI_DOUBLE: function () {
         return {
-            type: SCORE_TYPE.T_SPIN_MINI_DOUBLE,
-            score: 400,
-            tier: 'silver',
+            type: SCORE_TYPE.T_SPIN_MINI_DOUBLE, score: 400, tier: 'silver', cleared: 2,
             description: function () { return 'T SPIN MINI DOUBLE +' + this.score }
         }
     },
     T_SPIN_DOUBLE: function () {
         return {
-            type: SCORE_TYPE.T_SPIN_DOUBLE,
-            score: 1200,
-            tier: 'gold',
+            type: SCORE_TYPE.T_SPIN_DOUBLE, score: 1200, tier: 'gold', cleared: 2,
             description: function () { return 'T SPIN DOUBLE +' + this.score }
         }
     },
     T_SPIN_TRIPLE: function () {
         return {
-            type: SCORE_TYPE.T_SPIN_TRIPLE,
-            score: 1600,
-            tier: 'gold',
+            type: SCORE_TYPE.T_SPIN_TRIPLE, score: 1600, tier: 'gold', cleared: 3,
             description: function () { return 'T SPIN TRIPLE +' + this.score }
         }
     },
     TETRIS: function () {
         return {
-            type: SCORE_TYPE.TETRIS,
-            score: 800,
-            tier: 'gold',
+            type: SCORE_TYPE.TETRIS, score: 800, tier: 'gold', cleared: 4,
             description: function () { return 'TETRIS +' + this.score }
         }
     },
     PERFECT_CLEAR_SINGLE: function () {
         return {
-            type: SCORE_TYPE.PERFECT_CLEAR_SINGLE,
-            score: 800,
-            tier: 'aqua',
+            type: SCORE_TYPE.PERFECT_CLEAR_SINGLE, score: 800, tier: 'aqua', perfectClear: true,
             description: function () { return 'PERFECT CLEAR SINGLE +' + this.score }
         }
     },
     PERFECT_CLEAR_DOUBLE: function () {
         return {
-            type: SCORE_TYPE.PERFECT_CLEAR_DOUBLE,
-            score: 1200,
-            tier: 'aqua',
+            type: SCORE_TYPE.PERFECT_CLEAR_DOUBLE, score: 1200, tier: 'aqua', perfectClear: true,
             description: function () { return 'PERFECT CLEAR DOUBLE +' + this.score }
         }
     },
     PERFECT_CLEAR_TRIPLE: function () {
         return {
-            type: SCORE_TYPE.PERFECT_CLEAR_TRIPLE,
-            score: 1800,
-            tier: 'aqua',
+            type: SCORE_TYPE.PERFECT_CLEAR_TRIPLE, score: 1800, tier: 'aqua', perfectClear: true,
             description: function () { return 'PERFECT CLEAR TRIPLE +' + this.score }
         }
     },
     PERFECT_CLEAR_TETRIS: function () {
         return {
-            type: SCORE_TYPE.PERFECT_CLEAR_TETRIS,
-            score: 2000,
-            tier: 'aqua',
+            type: SCORE_TYPE.PERFECT_CLEAR_TETRIS, score: 2000, tier: 'aqua', perfectClear: true,
             description: function () { return 'PERFECT CLEAR TETRIS +' + this.score }
         }
     },
     PERFECT_CLEAR_BACK_TO_BACK: function () {
         return {
-            type: SCORE_TYPE.PERFECT_CLEAR_BACK_TO_BACK,
-            score: 3200,
-            tier: 'aqua',
+            type: SCORE_TYPE.PERFECT_CLEAR_BACK_TO_BACK, score: 3200, tier: 'aqua', perfectClear: true,
             description: function () { return 'PERFECT CLEAR BACK-TO-BACK +' + this.score }
         }
     },
@@ -521,6 +493,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.COMBO,
             score: 50 * lastCombo,
+            count: lastCombo,
             tier: 'silver',
             description: function () { return 'COMBO ×' + lastCombo + ' +' + this.score }
         }
@@ -684,7 +657,6 @@ Board.prototype.land = function () {
     var isTSpin = false
     if (this.falling.isTSpin) {
         isTSpin = this.falling.isTSpin(this.board)
-        console.log(isTSpin, this.kicked)
         if (!this.kicked) {
             isTSpin = T_SPIN_STATE.NOT_T_SPIN
         } else if (isTSpin == T_SPIN_STATE.T_SPIN_MINI
@@ -748,9 +720,7 @@ Board.prototype.land = function () {
             this.addScore(primaryScore)
         }
         // perfect clear score
-        console.log(this.blocks)
         if (this.blocks == 0) {
-            console.log('perfect cleare!', primaryScore)
             var perfectClearScore = primaryScore.type == SCORE_TYPE.TETRIS
                 ? SCORE_OBJECT.PERFECT_CLEAR_BACK_TO_BACK()
                 : PERFECT_CLEAR_SCORE[cleared.length]()
@@ -884,7 +854,6 @@ Board.prototype.move = function (delta) {
 Board.prototype.rotate = function (delta) {
     this.falling.erase(this.board)
     var rotated = this.falling.rotate(this.board, delta)
-    console.log(rotated)
     if (rotated) {
         this.updateGhost()
         this.kicked = rotated
@@ -922,66 +891,28 @@ function Statistics() {
 }
 
 Statistics.prototype.init = function () {
-    // land score
-    this.height = 0
-    this.landed = 0
-
-    // clear score
-    this.cleared = 0
-    this.single = 0
-    this.double = 0
-    this.triple = 0
-    this.tetris = 0
-    this.tSpinMiniZero = 0
-    this.tSpinMiniSingle = 0
-    this.tSpinMiniDouble = 0
-    this.tSpinZero = 0
-    this.tSpinSingle = 0
-    this.tSpinDouble = 0
-    this.tSpinTriple = 0
-    this.tSpinTripleMini = 0
-    this.perfectClearSingle = 0
-    this.perfectClearDouble = 0
-    this.perfectClearTriple = 0
-    this.perfectClearTetris = 0
-
-    // combo score
-    this.maxCombo = 0
-    this.comboScore = 0
+    this.data = { cleared: 0, perfectCleared: 0 }
 }
 
 Statistics.prototype.collect = function (scoreData) {
     var type = scoreData.type
-    if (type == SCORE_TYPE.LAND) {
-        this.landed++
-    } else if (type == SCORE_TYPE.DROP) {
-        this.height += scoreData.score
-    } else if (type == SCORE_TYPE.SINGLE_LINE) {
-        this.cleared += 1
-        this.single++
-    } else if (type == SCORE_TYPE.DOUBLE_LINE) {
-        this.cleared += 2
-        this.double++
-    } else if (type == SCORE_TYPE.TRIPLE_LINE) {
-        this.cleared += 3
-        this.triple++
-    } else if (type == SCORE_TYPE.TETRIS) {
-        this.cleared += 4
-        this.tetris++
-    } else if (type == SCORE_TYPE.T_SPIN_SINGLE) {
-        this.cleared += 1
-        this.tSpinSingle++
-    } else if (type == SCORE_TYPE.T_SPIN_DOUBLE) {
-        this.cleared += 2
-        this.tSpinDouble++
-    } else if (type == SCORE_TYPE.T_SPIN_TRIPLE) {
-        this.cleared += 3
-        this.tSpinTriple++
-    } else if (type == SCORE_TYPE.PERFECT_CLEAR) {
-        this.perfectClear++
+    if (!this.data[type]) {
+        this.data[type] = 0
+    }
+    if (type == SCORE_TYPE.DROP) {
+        this.data[type] += scoreData.score
     } else if (type == SCORE_TYPE.COMBO) {
-        this.maxCombo = Math.max(this.maxCombo, scoreData.count)
-        this.comboScore += scoreData.score
+        if (this.data[type] < scoreData.count) {
+            this.data[type] = scoreData.count
+        }
+    } else if (type == SCORE_TYPE.BACK_TO_BACK) {
+        this.data[type] += scoreData.score
+    }
+    if (scoreData.cleared) {
+        this.data.cleared += scoreData.cleared
+    }
+    if (scoreData.perfectClear) {
+        this.data.perfectCleared++
     }
 }
 
