@@ -329,6 +329,7 @@ App.prototype.openStatistics = function () {
     }
     var newWindow = window.open('', '통계')
     newWindow.document.body.innerHTML = this.board.statistics.toString()
+    newWindow.focus()
 }
 
 App.prototype.toggleDayMode = function () {
