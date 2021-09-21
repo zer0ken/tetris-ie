@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Compatiblility
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 function isElement(obj) {
     try {
         return obj instanceof HTMLElement;
@@ -235,43 +239,31 @@ App.prototype.onKeyDown = function (e) {
 }
 
 App.prototype.control = function (control) {
-    switch (control) {
-        case CONTROLS.PAUSE:
-            this.togglePause()
-            break
-        case CONTROLS.RESET:
-            this.reset()
-            break
-        case CONTROLS.STATISTICS:
-            this.pressing = {}
-            this.openStatistics()
-            break
+    if (control == CONTROLS.PAUSE) {
+        this.togglePause()
+    } else if (control == CONTROLS.RESET) {
+        this.reset()
+    } else if (control == CONTROLS.STATISTICS) {
+        this.pressing = {}
+        this.openStatistics()
     }
     if (this.board.state == BOARD_STATE.PLAYING) {
-        switch (control) {
-            case CONTROLS.MOVE_LEFT:
-                this.board.move(-1)
-                break
-            case CONTROLS.MOVE_RIGHT:
-                this.board.move(1)
-                break
-            case CONTROLS.SOFT_DROP:
-                this.board.softDrop()
-                break
-            case CONTROLS.HARD_DROP:
-                this.board.hardDrop()
-                break
-            case CONTROLS.ROTATE_LEFT:
-                this.board.rotate(-1)
-                break
-            case CONTROLS.ROTATE_RIGHT:
-                this.board.rotate(1)
-                break
-            case CONTROLS.HOLD:
-                this.board.hold()
-                break
-            default:
-                return false
+        if (control == CONTROLS.MOVE_LEFT) {
+            this.board.move(-1)
+        } else if (control == CONTROLS.MOVE_RIGHT) {
+            this.board.move(1)
+        } else if (control == CONTROLS.SOFT_DROP) {
+            this.board.softDrop()
+        } else if (control == CONTROLS.HARD_DROP) {
+            this.board.hardDrop()
+        } else if (control == CONTROLS.ROTATE_LEFT) {
+            this.board.rotate(-1)
+        } else if (control == CONTROLS.ROTATE_RIGHT) {
+            this.board.rotate(1)
+        } else if (control == CONTROLS.HOLD) {
+            this.board.hold()
+        } else {
+            return false
         }
         return true
     }
