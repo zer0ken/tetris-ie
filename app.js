@@ -929,10 +929,12 @@ Statistics.prototype.init = function () {
     this.double = 0
     this.triple = 0
     this.tetris = 0
+    this.tSpinMiniZero = 0
+    this.tSpinMiniSingle = 0
+    this.tSpinMiniDouble = 0
+    this.tSpinZero = 0
     this.tSpinSingle = 0
-    this.tSpinSingleMini = 0
     this.tSpinDouble = 0
-    this.tSpinDoubleMini = 0
     this.tSpinTriple = 0
     this.tSpinTripleMini = 0
     this.perfectClearSingle = 0
@@ -981,19 +983,20 @@ Statistics.prototype.collect = function (scoreData) {
 }
 
 Statistics.prototype.toString = function () {
-    return ('[ 하강 기록 ]'
-        + '\n  * 하강 개수:  ' + this.landed + ' 개'
-        + '\n  * 하드 드랍한 높이:  ' + this.height + ' 블럭'
-        + '\n\n[ 제거 기록 ]'
-        + '\n  * 제거한 줄:  ' + this.cleared + ' 줄'
-        + '\n\n  * Single:  ' + this.single + ' 회 / T-Spin:  ' + this.tSpinSingle + ' 회'
-        + '\n  * Double:  ' + this.double + ' 회 / T-Spin:  ' + this.tSpinDouble + ' 회'
-        + '\n  * Triple:  ' + this.triple + ' 회 / T-Spin:  ' + this.tSpinTriple + ' 회'
-        + '\n  * Tetris:  ' + this.tetris + ' 회'
-        + '\n\n  * 퍼펙트 클리어:  ' + this.perfectClear + ' 회'
-        + '\n\n[ 연쇄 기록 ]'
-        + '\n  * 최장 연쇄 횟수:  ' + this.maxCombo + ' 회'
-        + '\n  * 총 연쇄 점수:  ' + this.comboScore + ' 점')
+    return 'fixing...'
+    // return ('[ 하강 기록 ]'
+    //     + '\n  * 하강 개수:  ' + this.landed + ' 개'
+    //     + '\n  * 하드 드랍한 높이:  ' + this.height + ' 블럭'
+    //     + '\n\n[ 제거 기록 ]'
+    //     + '\n  * 제거한 줄:  ' + this.cleared + ' 줄'
+    //     + '\n\n  * Single:  ' + this.single + ' 회 / T-Spin:  ' + this.tSpinSingle + ' 회'
+    //     + '\n  * Double:  ' + this.double + ' 회 / T-Spin:  ' + this.tSpinDouble + ' 회'
+    //     + '\n  * Triple:  ' + this.triple + ' 회 / T-Spin:  ' + this.tSpinTriple + ' 회'
+    //     + '\n  * Tetris:  ' + this.tetris + ' 회'
+    //     + '\n\n  * 퍼펙트 클리어:  ' + this.perfectClear + ' 회'
+    //     + '\n\n[ 연쇄 기록 ]'
+    //     + '\n  * 최장 연쇄 횟수:  ' + this.maxCombo + ' 회'
+    //     + '\n  * 총 연쇄 점수:  ' + this.comboScore + ' 점')
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
