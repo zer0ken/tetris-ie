@@ -183,8 +183,9 @@ body.day .on {
 body.day td { background: #e9f1ff; }
 body.day td.over { background: #d4e5ff; }
 body.day td.ghost { 
-    box-sizing: border-box;
-    border: 1px solid #538faa;
+    width: 26px;
+    height: 26px;
+    background: #b8b7e7;
 }
 body.day td.hidden { background: transparent; }
 body.day td.i { background: #00c9e4; }
