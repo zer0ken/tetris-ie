@@ -117,7 +117,7 @@ window.onload = function () {
 }
 
 var CONTROLS = {
-    MOVE_LEFT: 0,
+    MOVE_LEFT: 10,
     MOVE_RIGHT: 1,
     ROTATE_RIGHT: 2,
     ROTATE_LEFT: 3,
@@ -370,7 +370,7 @@ var BOARD_ROW = 23
 var BOARD_COL = 10
 
 var SCORE_TYPE = {
-    DROP: 0,
+    DROP: 20,
     LAND: 1,
     SINGLE_LINE: 2,
     DOUBLE_LINE: 3,
@@ -407,8 +407,7 @@ var SCORE_OBJECT = {
     },
     DOUBLE_LINE: function () {
         return {
-            type: SCORE_TYPE.DOUBLE_LINE, score: 300, cleared: 2,
-            tier: 'silver',
+            type: SCORE_TYPE.DOUBLE_LINE, score: 300, cleared: 2, tier: 'silver',
             description: function () { return 'DOUBLE +' + this.score }
         }
     },
@@ -416,6 +415,12 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.TRIPLE_LINE, score: 500, tier: 'gold', cleared: 3,
             description: function () { return 'TRIPLE +' + this.score }
+        }
+    },
+    TETRIS: function () {
+        return {
+            type: SCORE_TYPE.TETRIS, score: 800, tier: 'gold', cleared: 4,
+            description: function () { return 'TETRIS +' + this.score }
         }
     },
     T_SPIN_MINI_ZERO: function () {
@@ -460,12 +465,6 @@ var SCORE_OBJECT = {
             description: function () { return 'T SPIN TRIPLE +' + this.score }
         }
     },
-    TETRIS: function () {
-        return {
-            type: SCORE_TYPE.TETRIS, score: 800, tier: 'gold', cleared: 4,
-            description: function () { return 'TETRIS +' + this.score }
-        }
-    },
     PERFECT_CLEAR_SINGLE: function () {
         return {
             type: SCORE_TYPE.PERFECT_CLEAR_SINGLE, score: 800, tier: 'aqua', perfectClear: true,
@@ -498,18 +497,13 @@ var SCORE_OBJECT = {
     },
     COMBO: function (lastCombo) {
         return {
-            type: SCORE_TYPE.COMBO,
-            score: 50 * lastCombo,
-            count: lastCombo,
-            tier: 'silver',
+            type: SCORE_TYPE.COMBO, score: 50 * lastCombo, count: lastCombo,
             description: function () { return 'COMBO ×' + lastCombo + ' +' + this.score }
         }
     },
     BACK_TO_BACK: function (score) {
         return {
-            type: SCORE_TYPE.BACK_TO_BACK,
-            score: score / 2,
-            tier: 'silver',
+            type: SCORE_TYPE.BACK_TO_BACK, score: score / 2,
             description: function () { return 'BACK-TO-BACK +' + this.score }
         }
     }
