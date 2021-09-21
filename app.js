@@ -117,16 +117,16 @@ window.onload = function () {
 }
 
 var CONTROLS = {
-    MOVE_LEFT: 'moveLeft',
-    MOVE_RIGHT: 'moveRight',
-    ROTATE_RIGHT: 'rotateRight',
-    ROTATE_LEFT: 'rotateLeft',
-    SOFT_DROP: 'softDrop',
-    HARD_DROP: 'hardDrop',
-    HOLD: 'hold',
-    PAUSE: 'pause',
-    RESET: 'reset',
-    STATISTICS: 'statistics'
+    MOVE_LEFT: 0,
+    MOVE_RIGHT: 1,
+    ROTATE_RIGHT: 2,
+    ROTATE_LEFT: 3,
+    SOFT_DROP: 4,
+    HARD_DROP: 5,
+    HOLD: 6,
+    PAUSE: 7,
+    RESET: 8,
+    STATISTICS: 9
 }
 
 var KEYMAP = {
@@ -370,26 +370,26 @@ var BOARD_ROW = 23
 var BOARD_COL = 10
 
 var SCORE_TYPE = {
-    DROP: 'Drop',
-    LAND: 'Land',
-    SINGLE_LINE: 'Single Line',
-    DOUBLE_LINE: 'Double Line',
-    TRIPLE_LINE: 'Triple Line',
-    TETRIS: 'Tetris',
-    T_SPIN_MINI_ZERO: 'T-Spin Mini Zero',
-    T_SPIN_ZERO: 'T-Spin Zero',
-    T_SPIN_MINI_SINGLE: 'T-Spin Mini Single',
-    T_SPIN_SINGLE: 'T-Spin Single',
-    T_SPIN_MINI_DOUBLE: 'T-Spin Mini Double',
-    T_SPIN_DOUBLE: 'T-Spin Double',
-    T_SPIN_TRIPLE: 'T-Spin Triple',
-    PERFECT_CLEAR_SINGLE: 'Perfect Clear Single',
-    PERFECT_CLEAR_DOUBLE: 'Perfect Clear Double',
-    PERFECT_CLEAR_TRIPLE: 'Perfect Clear Triple',
-    PERFECT_CLEAR_TETRIS: 'Perfect Clear Tetris',
-    PERFECT_CLEAR_BACK_TO_BACK: 'Perfect Clear Back-to-Back',
-    COMBO: 'Combo',
-    BACK_TO_BACK: 'Back-to-Back'
+    DROP: 0,
+    LAND: 1,
+    SINGLE_LINE: 2,
+    DOUBLE_LINE: 3,
+    TRIPLE_LINE: 4,
+    TETRIS: 5,
+    T_SPIN_MINI_ZERO: 6,
+    T_SPIN_ZERO: 7,
+    T_SPIN_MINI_SINGLE: 8,
+    T_SPIN_SINGLE: 9,
+    T_SPIN_MINI_DOUBLE: 10,
+    T_SPIN_DOUBLE: 11,
+    T_SPIN_TRIPLE: 12,
+    PERFECT_CLEAR_SINGLE: 13,
+    PERFECT_CLEAR_DOUBLE: 14,
+    PERFECT_CLEAR_TRIPLE: 15,
+    PERFECT_CLEAR_TETRIS: 16,
+    PERFECT_CLEAR_BACK_TO_BACK: 17,
+    COMBO: 18,
+    BACK_TO_BACK: 19
 }
 
 var SCORE_OBJECT = {
