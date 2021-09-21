@@ -419,6 +419,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.T_SPIN_MINI_ZERO,
             score: 100,
+            tier: 'silver',
             description: function () { return 'T SPIN MINI ZERO +' + this.score }
         }
     },
@@ -426,6 +427,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.T_SPIN_ZERO,
             score: 400,
+            tier: 'silver',
             description: function () { return 'T SPIN ZERO +' + this.score }
         }
     },
@@ -433,6 +435,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.T_SPIN_MINI_SINGLE,
             score: 200,
+            tier: 'silver',
             description: function () { return 'T SPIN MINI SINGLE +' + this.score }
         }
     },
@@ -440,6 +443,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.T_SPIN_SINGLE,
             score: 800,
+            tier: 'gold',
             description: function () { return 'T SPIN SINGLE +' + this.score }
         }
     },
@@ -447,6 +451,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.T_SPIN_MINI_DOUBLE,
             score: 400,
+            tier: 'silver',
             description: function () { return 'T SPIN MINI DOUBLE +' + this.score }
         }
     },
@@ -454,7 +459,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.T_SPIN_DOUBLE,
             score: 1200,
-            tier: 'silver',
+            tier: 'gold',
             description: function () { return 'T SPIN DOUBLE +' + this.score }
         }
     },
@@ -520,6 +525,13 @@ var SCORE_OBJECT = {
             score: 50 * lastCombo,
             description: function () { return 'COMBO ×' + lastCombo + ' +' + this.score }
         }
+    },
+    BACK_TO_BACK: function (score) {
+        return {
+            type: SCORE_TYPE.BACK_TO_BACK,
+            score: score / 2,
+            description: function () { return 'BACK-TO-BACK +' + this.score }
+        }
     }
 }
 
@@ -531,9 +543,23 @@ var LINE_SCORE = {
 }
 
 var T_SPIN_SCORE = {
+    0: SCORE_OBJECT.T_SPIN_ZERO,
     1: SCORE_OBJECT.T_SPIN_SINGLE,
     2: SCORE_OBJECT.T_SPIN_DOUBLE,
     3: SCORE_OBJECT.T_SPIN_TRIPLE
+}
+
+var T_SPIN_MINI_SCORE = {
+    0: SCORE_OBJECT.T_SPIN_MINI_ZERO,
+    1: SCORE_OBJECT.T_SPIN_MINI_SINGLE,
+    2: SCORE_OBJECT.T_SPIN_MINI_DOUBLE
+}
+
+var PERFECT_CLEAR_SCORE = {
+    1: SCORE_OBJECT.PERFECT_CLEAR_SINGLE,
+    2: SCORE_OBJECT.PERFECT_CLEAR_DOUBLE,
+    3: SCORE_OBJECT.PERFECT_CLEAR_TRIPLE,
+    4: SCORE_OBJECT.PERFECT_CLEAR_TETRIS
 }
 
 function Board(gravity, ghost) {
@@ -593,6 +619,7 @@ Board.prototype.init = function () {
     this.holdSwapped = false
 
     this.kicked = false
+    this.backToBack = false
     this.initScore()
     this.statistics.init()
 }
@@ -653,16 +680,16 @@ Board.prototype.drop = function () {
 Board.prototype.land = function () {
     var shape = this.falling.blocks[this.falling.rotation]
     var over = false
-    var tSpinState
+    var isTSpin = false
     if (this.falling.isTSpin) {
-        var tSpinState = this.falling.isTSpin()
-        if (tSpinState == T_SPIN_STATE.NOT_T_SPIN
-            && this.kicked
-        && Math.abs) {
-            
+        var isTSpin = this.falling.isTSpin()
+        if (!this.kicked) {
+            isTSpin = T_SPIN_STATE.NOT_T_SPIN
+        } else if (isTSpin == T_SPIN_STATE.T_SPIN_MINI
+            && Math.abs(this.kicked.row) + Math.abs(this.kicked.col) >= 3) {
+            isTSpin = T_SPIN_STATE.T_SPIN
         }
     }
-
     var cleared = []
     for (var i = 0; i < shape.length; i++) {
         var block = shape[i];
@@ -702,13 +729,26 @@ Board.prototype.land = function () {
     // land score
     this.addScore(SCORE_OBJECT.LAND())
     this.blocks += 4
-    if (cleared.length) {
+    if (isTSpin) {
+        var scoreList = isTSpin == T_SPIN_STATE.T_SPIN_MINI
+            ? T_SPIN_MINI_SCORE
+            : T_SPIN_SCORE
+        var tSpinScore = scoreList[cleared.length]()
+        tSpinScore.score *= this.gravity
+        this.addScore(tSpinScore)
+        if (cleared.length >= 1) {
+            if (this.backToBack) {
+                this.addScore(SCORE_OBJECT.BACK_TO_BACK(tSpinScore.score))
+            }
+            this.backToBack = true
+        }
+    } else if (cleared.length) {
         // clear score
-        var scoreList = tSpin ? T_SPIN_SCORE : LINE_SCORE
+        var isTSpin = LINE_SCORE
         this.blocks -= cleared.length * BOARD_COL
-        var scoreData = scoreList[cleared.length]()
-        scoreData.score *= this.gravity
-        this.addScore(scoreData)
+        var clearScore = isTSpin[cleared.length]()
+        clearScore.score *= this.gravity
+        this.addScore(clearScore)
 
         // combo score
         if (this.combo) {
@@ -722,9 +762,21 @@ Board.prototype.land = function () {
 
         // perfect clear score
         if (this.blocks == 0) {
-            var scoreData = SCORE_OBJECT.PERFECT_CLEAR()
-            scoreData.score *= this.gravity
-            this.addScore(scoreData)
+            var perfectClearScore = this.backToBack
+                ? SCORE_OBJECT.PERFECT_CLEAR_BACK_TO_BACK
+                : PERFECT_CLEAR_SCORE[cleared.length]
+            perfectClearScore.score *= this.gravity
+            this.addScore(perfectClearScore)
+        }
+
+        // back-to-back score
+        if (cleared.length >= 4) {
+            if (this.backToBack) {
+                this.addScore(SCORE_OBJECT.BACK_TO_BACK(clearScore.score))
+            }
+            this.backToBack = true
+        } else {
+            this.backToBack = false
         }
     } else {
         this.combo = 0
@@ -832,11 +884,11 @@ Board.prototype.move = function (delta) {
 
 Board.prototype.rotate = function (delta) {
     this.falling.erase(this.board)
-    var result = this.falling.rotate(this.board, delta)
-    if (result) {
+    var rotated = this.falling.rotate(this.board, delta)
+    console.log(rotated)
+    if (rotated) {
         this.updateGhost()
-        this.kicked = result
-        console.log(result)
+        this.kicked = rotated
     }
     this.falling.draw(this.board)
 }
@@ -1104,7 +1156,7 @@ Tetrimino.prototype.rotate = function (board, delta) {
         var maxRotation = this.blocks.length
         this.rotation = ((this.rotation + delta) % maxRotation + maxRotation) % maxRotation
     }
-    return !failed && kick 
+    return !failed && kick
 }
 
 Tetrimino.prototype.draw = function (board) {
