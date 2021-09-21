@@ -403,7 +403,6 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.DOUBLE_LINE,
             score: 300,
-            tier: 'silver',
             description: function () { return 'DOUBLE +' + this.score }
         }
     },
@@ -411,7 +410,6 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.TRIPLE_LINE,
             score: 500,
-            tier: 'silver',
             description: function () { return 'TRIPLE +' + this.score }
         }
     },
@@ -419,7 +417,6 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.T_SPIN_MINI_ZERO,
             score: 100,
-            tier: 'silver',
             description: function () { return 'T SPIN MINI ZERO +' + this.score }
         }
     },
@@ -427,7 +424,6 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.T_SPIN_ZERO,
             score: 400,
-            tier: 'silver',
             description: function () { return 'T SPIN ZERO +' + this.score }
         }
     },
@@ -523,6 +519,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.COMBO,
             score: 50 * lastCombo,
+            tier: 'silver',
             description: function () { return 'COMBO ×' + lastCombo + ' +' + this.score }
         }
     },
@@ -530,6 +527,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.BACK_TO_BACK,
             score: score / 2,
+            tier: 'silver',
             description: function () { return 'BACK-TO-BACK +' + this.score }
         }
     }
@@ -682,7 +680,7 @@ Board.prototype.land = function () {
     var over = false
     var isTSpin = false
     if (this.falling.isTSpin) {
-        var isTSpin = this.falling.isTSpin()
+        var isTSpin = this.falling.isTSpin(this.board)
         if (!this.kicked) {
             isTSpin = T_SPIN_STATE.NOT_T_SPIN
         } else if (isTSpin == T_SPIN_STATE.T_SPIN_MINI
