@@ -327,8 +327,8 @@ App.prototype.openStatistics = function () {
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.togglePause()
     }
-    alert(this.board.statistics.toString())
-    this.focus()
+    var newWindow = window.open('', '통계')
+    newWindow.document.body.innerHTML = this.board.statistics.toString()
 }
 
 App.prototype.toggleDayMode = function () {
@@ -907,9 +907,11 @@ Statistics.prototype.collect = function (scoreData) {
         }
     } else if (type == SCORE_TYPE.BACK_TO_BACK) {
         this.data[type] += scoreData.score
+    } else {
+        this.data[type]++
     }
     if (scoreData.cleared) {
-        this.data.cleared += scoreData.cleared
+        this.data.cleared += scoreData.cleareds
     }
     if (scoreData.perfectClear) {
         this.data.perfectCleared++
@@ -917,20 +919,34 @@ Statistics.prototype.collect = function (scoreData) {
 }
 
 Statistics.prototype.toString = function () {
-    return 'fixing...'
-    // return ('[ 하강 기록 ]'
-    //     + '\n  * 하강 개수:  ' + this.landed + ' 개'
-    //     + '\n  * 하드 드랍한 높이:  ' + this.height + ' 블럭'
-    //     + '\n\n[ 제거 기록 ]'
-    //     + '\n  * 제거한 줄:  ' + this.cleared + ' 줄'
-    //     + '\n\n  * Single:  ' + this.single + ' 회 / T-Spin:  ' + this.tSpinSingle + ' 회'
-    //     + '\n  * Double:  ' + this.double + ' 회 / T-Spin:  ' + this.tSpinDouble + ' 회'
-    //     + '\n  * Triple:  ' + this.triple + ' 회 / T-Spin:  ' + this.tSpinTriple + ' 회'
-    //     + '\n  * Tetris:  ' + this.tetris + ' 회'
-    //     + '\n\n  * 퍼펙트 클리어:  ' + this.perfectClear + ' 회'
-    //     + '\n\n[ 연쇄 기록 ]'
-    //     + '\n  * 최장 연쇄 횟수:  ' + this.maxCombo + ' 회'
-    //     + '\n  * 총 연쇄 점수:  ' + this.comboScore + ' 점')
+    return (
+        '[ 착지 기록 ]<br/>'
+        + '&nbsp;&nbsp;* 착지: ' + (this.data[SCORE_TYPE.LAND] || 0) + ' 개<br/>'
+        + '&nbsp;&nbsp;* 하드 드랍한 높이: ' + (this.data[SCORE_TYPE.DROP] || 0) + ' 블럭<br/><br/>'
+        + '[ 제거 기록 ]<br/>'
+        + '&nbsp;&nbsp;* 제거: ' + this.data.cleared + ' 줄<br/><br/>'
+        + '&nbsp;&nbsp;* 싱글: ' + (this.data[SCORE_TYPE.SINGLE_LINE] || 0)
+        + ' 회 / T-스핀: ' + (this.data[SCORE_TYPE.T_SPIN_SINGLE] || 0)
+        + ' 회 / 미니: ' + (this.data[SCORE_TYPE.T_SPIN_MINI_SINGLE] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 더블: ' + (this.data[SCORE_TYPE.DOUBLE_LINE] || 0)
+        + ' 회 / T-스핀: ' + (this.data[SCORE_TYPE.T_SPIN_DOUBLE] || 0)
+        + ' 회 / 미니: ' + (this.data[SCORE_TYPE.T_SPIN_MINI_DOUBLE] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 트리플: ' + (this.data[SCORE_TYPE.TRIPLE_LINE] || 0)
+        + ' 회 / T-스핀: ' + (this.data[SCORE_TYPE.T_SPIN_TRIPLE] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 테트리스: ' + (this.data[SCORE_TYPE.TETRIS] || 0) + ' 회<br/><br/>'
+        + '[ 퍼펙트 클리어 기록 ]<br/>'
+        + '&nbsp;&nbsp;* 퍼펙트 클리어: ' + this.data.perfectCleared + ' 회<br/><br/>'
+        + '&nbsp;&nbsp;* 싱글: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_SINGLE] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 더블: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_DOUBLE] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 트리플: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_TRIPLE] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 테트리스: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_TETRIS] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 백-투-백: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_BACK_TO_BACK] || 0) + ' 회<br/><br/>'
+        + '[ 기타 기록 ]<br/>'
+        + '&nbsp;&nbsp;* 최장 연쇄 횟수: ' + (this.data[SCORE_TYPE.COMBO] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 백-투-백 점수: ' + (this.data[SCORE_TYPE.BACK_TO_BACK] || 0) + ' 점<br/>'
+        + '&nbsp;&nbsp;* T-스핀 미니 제로: ' + (this.data[SCORE_TYPE.T_SPIN_MINI_ZERO] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* T-스핀 제로: ' + (this.data[SCORE_TYPE.T_SPIN_ZERO] || 0) + ' 회'
+    )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
