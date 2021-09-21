@@ -403,6 +403,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.DOUBLE_LINE,
             score: 300,
+            tier: 'silver',
             description: function () { return 'DOUBLE +' + this.score }
         }
     },
@@ -410,6 +411,7 @@ var SCORE_OBJECT = {
         return {
             type: SCORE_TYPE.TRIPLE_LINE,
             score: 500,
+            tier: 'gold',
             description: function () { return 'TRIPLE +' + this.score }
         }
     },
@@ -618,6 +620,7 @@ Board.prototype.init = function () {
 
     this.kicked = false
     this.backToBack = false
+    this.combo
     this.initScore()
     this.statistics.init()
 }
@@ -680,7 +683,8 @@ Board.prototype.land = function () {
     var over = false
     var isTSpin = false
     if (this.falling.isTSpin) {
-        var isTSpin = this.falling.isTSpin(this.board)
+        isTSpin = this.falling.isTSpin(this.board)
+        console.log(isTSpin, this.kicked)
         if (!this.kicked) {
             isTSpin = T_SPIN_STATE.NOT_T_SPIN
         } else if (isTSpin == T_SPIN_STATE.T_SPIN_MINI
@@ -726,7 +730,7 @@ Board.prototype.land = function () {
 
     // land score
     this.addScore(SCORE_OBJECT.LAND())
-    this.blocks += 4
+    this.blocks += 4 - cleared.length * BOARD_COL
     if (cleared.length || isTSpin) {
         var primaryScore
         if (isTSpin) {
@@ -739,30 +743,20 @@ Board.prototype.land = function () {
             this.addScore(primaryScore)
         } else {
             // clear score
-            this.blocks -= cleared.length * BOARD_COL
             primaryScore = LINE_SCORE[cleared.length]()
             primaryScore.score *= this.gravity
             this.addScore(primaryScore)
         }
-        // combo score
-        if (cleared.length && this.combo) {
-            var comboScore = SCORE_OBJECT.COMBO(this.combo)
-            comboScore.score *= this.gravity
-            this.addScore(comboScore)
-            this.combo++
-        } else {
-            this.combo = 1
-        }
-
         // perfect clear score
+        console.log(this.blocks)
         if (this.blocks == 0) {
+            console.log('perfect cleare!', primaryScore)
             var perfectClearScore = primaryScore.type == SCORE_TYPE.TETRIS
-                ? SCORE_OBJECT.PERFECT_CLEAR_BACK_TO_BACK
-                : PERFECT_CLEAR_SCORE[cleared.length]
+                ? SCORE_OBJECT.PERFECT_CLEAR_BACK_TO_BACK()
+                : PERFECT_CLEAR_SCORE[cleared.length]()
             perfectClearScore.score *= this.gravity
             this.addScore(perfectClearScore)
         }
-
         // back-to-back score
         if (cleared.length >= 4 || (isTSpin && cleared.length >= 1)) {
             if (this.backToBack) {
@@ -771,6 +765,17 @@ Board.prototype.land = function () {
             this.backToBack = true
         } else if (cleared.length) {
             this.backToBack = false
+        }
+    }
+    // combo score
+    if (cleared.length) {
+        if (this.combo) {
+            var comboScore = SCORE_OBJECT.COMBO(this.combo)
+            comboScore.score *= this.gravity
+            this.addScore(comboScore)
+            this.combo++
+        } else {
+            this.combo = 1
         }
     } else {
         this.combo = 0
