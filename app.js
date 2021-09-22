@@ -324,7 +324,7 @@ App.prototype.openStatistics = function () {
         this.togglePause()
     }
     if (!this.statisticsWindow) {
-        this.statisticsWindow = window.open('', '통계', 'top=100, left=280, width=400, height=600, status=no, menubar=no, toolbar=no, resizable=no')
+        this.statisticsWindow = window.open('', '통계', 'top=100, left=280, width=400, status=no, menubar=no, toolbar=no, resizable=no')
     }
     this.statisticsWindow.document.body.innerHTML = this.board.statistics.toString()
     this.statisticsWindow.focus()
@@ -487,22 +487,22 @@ var SCORE_OBJECT = {
             description: function () { return 'PERFECT CLEAR BACK-TO-BACK +' + this.score }
         }
     },
-    COMBO: function (lastCombo) {
+    COMBO: function (count) {
         return {
-            type: SCORE_TYPE.COMBO, score: 50 * lastCombo, count: lastCombo,
-            tier: lastCombo >= 20
+            type: SCORE_TYPE.COMBO, score: 50 * count, count: count,
+            tier: count >= 20
                 ? 'aqua'
-                : lastCombo >= 15
+                : count >= 15
                     ? 'gold'
-                    : lastCombo >= 10
+                    : count >= 10
                         ? 'silver'
                         : '',
-            description: function () { return 'COMBO ×' + lastCombo + ' +' + this.score }
+            description: function () { return 'COMBO ×' + count + ' +' + this.score }
         }
     },
-    BACK_TO_BACK: function (score) {
+    BACK_TO_BACK: function (score, count) {
         return {
-            type: SCORE_TYPE.BACK_TO_BACK, score: score / 2,
+            type: SCORE_TYPE.BACK_TO_BACK, score: score / 2, count: count,
             description: function () { return 'BACK-TO-BACK +' + this.score }
         }
     }
@@ -592,8 +592,8 @@ Board.prototype.init = function () {
     this.holdSwapped = false
 
     this.kicked = false
-    this.backToBack = false
-    this.combo
+    this.backToBack = 0
+    this.combo = 0
     this.initScore()
     this.statistics.init()
 }
@@ -724,7 +724,7 @@ Board.prototype.land = function () {
         }
         // perfect clear score
         if (this.blocks == 0) {
-            var perfectClearScore = primaryScore.type == SCORE_TYPE.TETRIS
+            var perfectClearScore = primaryScore.type == SCORE_TYPE.TETRIS && this.backToBack
                 ? SCORE_OBJECT.PERFECT_CLEAR_BACK_TO_BACK()
                 : PERFECT_CLEAR_SCORE[cleared.length]()
             perfectClearScore.score *= this.gravity
@@ -733,11 +733,11 @@ Board.prototype.land = function () {
         // back-to-back score
         if (cleared.length >= 4 || (isTSpin && cleared.length >= 1)) {
             if (this.backToBack) {
-                this.addScore(SCORE_OBJECT.BACK_TO_BACK(primaryScore.score))
+                this.addScore(SCORE_OBJECT.BACK_TO_BACK(primaryScore.score, this.backToBack))
             }
-            this.backToBack = true
+            this.backToBack++
         } else if (cleared.length) {
-            this.backToBack = false
+            this.backToBack = 0
         }
     }
     // combo score
@@ -894,7 +894,7 @@ function Statistics() {
 }
 
 Statistics.prototype.init = function () {
-    this.data = { cleared: 0, perfectCleared: 0 }
+    this.data = { cleared: 0, perfectCleared: 0, comboScore: 0, backToBackScore: 0 }
 }
 
 Statistics.prototype.collect = function (scoreData) {
@@ -904,12 +904,11 @@ Statistics.prototype.collect = function (scoreData) {
     }
     if (type == SCORE_TYPE.DROP) {
         this.data[type] += scoreData.score
-    } else if (type == SCORE_TYPE.COMBO) {
+    } else if (type == SCORE_TYPE.COMBO || type == SCORE_TYPE.BACK_TO_BACK) {
         if (this.data[type] < scoreData.count) {
             this.data[type] = scoreData.count
         }
-    } else if (type == SCORE_TYPE.BACK_TO_BACK) {
-        this.data[type] += scoreData.score
+        this.data.comboScore += scoreData.score
     } else {
         this.data[type]++
     }
@@ -946,7 +945,9 @@ Statistics.prototype.toString = function () {
         + '&nbsp;&nbsp;* 백-투-백: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_BACK_TO_BACK] || 0) + ' 회<br/><br/>'
         + '[ 기타 기록 ]<br/>'
         + '&nbsp;&nbsp;* 최장 연쇄 횟수: ' + (this.data[SCORE_TYPE.COMBO] || 0) + ' 회<br/>'
-        + '&nbsp;&nbsp;* 백-투-백 점수: ' + (this.data[SCORE_TYPE.BACK_TO_BACK] || 0) + ' 점<br/>'
+        + '&nbsp;&nbsp;* 연쇄 점수: ' + this.data.comboScore + ' 점<br/><br/>'
+        + '&nbsp;&nbsp;* 최장 백-투-백 횟수: ' + (this.data[SCORE_TYPE.BACK_TO_BACK] || 0) + ' 회<br/>'
+        + '&nbsp;&nbsp;* 백-투-백 점수: ' + this.data.backToBackScore + ' 점<br/><br/>'
         + '&nbsp;&nbsp;* T-스핀 미니 제로: ' + (this.data[SCORE_TYPE.T_SPIN_MINI_ZERO] || 0) + ' 회<br/>'
         + '&nbsp;&nbsp;* T-스핀 제로: ' + (this.data[SCORE_TYPE.T_SPIN_ZERO] || 0) + ' 회'
     )
