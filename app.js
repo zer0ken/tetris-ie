@@ -1069,12 +1069,12 @@ Tetrimino.prototype.blocks = [[block(1, 0), block(0, 1), block(1, 2), block(0, 3
 Tetrimino.prototype.kicks = [
     {   // from 0
         '1': [block(0, -1), block(-1, -1), block(2, 0), block(2, -1)],  // 0-1 -1-1 20 2-1  (a)
-        '-1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)]     // 01 -11 20 21
+        '-1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)]     // 01 -11 20 21     (d)
     }, {// from 1
         '1': [block(0, 1), block(1, 1), block(-2, 0), block(-2, 1)],    // 01 11 -20 -21    (b)
         '-1': [block(0, 1), block(1, 1), block(-2, 0), block(-2, 1)]    // 01 11 -20 -21    (b)
     }, {// from 2
-        '1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)],      // 01 -11 20 21
+        '1': [block(0, 1), block(-1, 1), block(2, 0), block(2, 1)],      // 01 -11 20 21    (d)
         '-1': [block(0, -1), block(-1, -1), block(2, 0), block(2, -1)]  // 0-1 -1-1 20 2-1  (a)
     }, {// from 3
         '1': [block(0, -1), block(1, -1), block(-2, 0), block(-2, -1)], // 0-1 1-1 -20 -2-1 (c)
