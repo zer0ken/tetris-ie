@@ -1038,6 +1038,8 @@ Figure.prototype.setTetrimino = function (tetrimino) {
 // Base Tetrimino
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+var GHOST = 'ghost'
+
 function block(row, col) {
     return { row: row, col: col }
 }
@@ -1045,13 +1047,13 @@ function block(row, col) {
 function isInBoard(row, col) {
     return row >= 0 && row < BOARD_ROW && col >= 0 && col < BOARD_COL
 }
+
 function Tetrimino(row, col) {
     this.row = row
     this.col = col
     this.rotation = 0
 }
 
-var GHOST = 'ghost'
 Tetrimino.prototype.type = GHOST
 Tetrimino.prototype.blocks = [[block(1, 0), block(0, 1), block(1, 2), block(0, 3)]] // 10 01 12 03
 Tetrimino.prototype.kicks = [
@@ -1202,6 +1204,12 @@ SMino.prototype.blocks = [
     [block(0, 0), block(1, 0), block(1, 1), block(2, 1)]    // 00 10 11 21
 ]
 
+var T_SPIN_STATE = {
+    NOT_T_SPIN: 0,
+    T_SPIN_MINI: 1,
+    T_SPIN: 2
+}
+
 function TMino() { }
 TMino.prototype = new Tetrimino(0, 3)
 TMino.prototype.constructor = TMino
@@ -1237,12 +1245,6 @@ TMino.prototype.isTSpin = function (board) {
         return T_SPIN_STATE.T_SPIN_MINI
     }
     return T_SPIN_STATE.NOT_T_SPIN
-}
-
-var T_SPIN_STATE = {
-    NOT_T_SPIN: 0,
-    T_SPIN_MINI: 1,
-    T_SPIN: 2
 }
 
 function ZMino() { }
