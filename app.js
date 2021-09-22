@@ -324,7 +324,7 @@ App.prototype.openStatistics = function () {
         this.togglePause()
     }
     if (!this.statisticsWindow) {
-        this.statisticsWindow = window.open('', '통계', 'top=100, left=280, width=400, status=no, menubar=no, toolbar=no, resizable=no')
+        this.statisticsWindow = window.open('', '통계', 'top=100, left=280, width=400, height=700, status=no, menubar=no, toolbar=no, resizable=no')
     }
     this.statisticsWindow.document.body.innerHTML = this.board.statistics.toString()
     this.statisticsWindow.focus()
@@ -894,7 +894,11 @@ function Statistics() {
 }
 
 Statistics.prototype.init = function () {
-    this.data = { cleared: 0, perfectCleared: 0, comboScore: 0, backToBackScore: 0 }
+    this.data = {
+        cleared: 0, clearScore: 0,
+        perfectCleared: 0, perfectClearScore: 0,
+        comboScore: 0, backToBackScore: 0
+    }
 }
 
 Statistics.prototype.collect = function (scoreData) {
@@ -918,9 +922,11 @@ Statistics.prototype.collect = function (scoreData) {
     }
     if (scoreData.cleared) {
         this.data.cleared += scoreData.cleared
+        this.data.clearScore += scoreData.score
     }
     if (scoreData.perfectClear) {
         this.data.perfectCleared++
+        this.data.perfectClearScore += scoreData.score
     }
 }
 
@@ -930,7 +936,8 @@ Statistics.prototype.toString = function () {
         + '&nbsp;&nbsp;* 착지: ' + (this.data[SCORE_TYPE.LAND] || 0) + ' 개<br/>'
         + '&nbsp;&nbsp;* 하드 드랍한 높이: ' + (this.data[SCORE_TYPE.DROP] || 0) + ' 블럭<br/><br/>'
         + '[ 제거 기록 ]<br/>'
-        + '&nbsp;&nbsp;* 제거: ' + this.data.cleared + ' 줄<br/><br/>'
+        + '&nbsp;&nbsp;* 제거: ' + this.data.cleared + ' 줄<br/>'
+        + '&nbsp;&nbsp;* 제거 점수: ' + this.data.clearScore + ' 점<br/><br/>'
         + '&nbsp;&nbsp;* 싱글: ' + (this.data[SCORE_TYPE.SINGLE_LINE] || 0)
         + ' 회 / T-스핀: ' + (this.data[SCORE_TYPE.T_SPIN_SINGLE] || 0)
         + ' 회 / 미니: ' + (this.data[SCORE_TYPE.T_SPIN_MINI_SINGLE] || 0) + ' 회<br/>'
@@ -941,7 +948,8 @@ Statistics.prototype.toString = function () {
         + ' 회 / T-스핀: ' + (this.data[SCORE_TYPE.T_SPIN_TRIPLE] || 0) + ' 회<br/>'
         + '&nbsp;&nbsp;* 테트리스: ' + (this.data[SCORE_TYPE.TETRIS] || 0) + ' 회<br/><br/>'
         + '[ 퍼펙트 클리어 기록 ]<br/>'
-        + '&nbsp;&nbsp;* 퍼펙트 클리어: ' + this.data.perfectCleared + ' 회<br/><br/>'
+        + '&nbsp;&nbsp;* 퍼펙트 클리어: ' + this.data.perfectCleared + ' 회<br/>'
+        + '&nbsp;&nbsp;* 퍼펙트 클리어 점수: ' + this.data.perfectClearScore + ' 점<br/><br/>'
         + '&nbsp;&nbsp;* 싱글: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_SINGLE] || 0) + ' 회<br/>'
         + '&nbsp;&nbsp;* 더블: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_DOUBLE] || 0) + ' 회<br/>'
         + '&nbsp;&nbsp;* 트리플: ' + (this.data[SCORE_TYPE.PERFECT_CLEAR_TRIPLE] || 0) + ' 회<br/>'
