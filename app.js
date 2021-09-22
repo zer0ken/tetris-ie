@@ -908,7 +908,11 @@ Statistics.prototype.collect = function (scoreData) {
         if (this.data[type] < scoreData.count) {
             this.data[type] = scoreData.count
         }
-        this.data.comboScore += scoreData.score
+        if (type == SCORE_TYPE.COMBO) {
+            this.data.comboScore += scoreData.score
+        } else {
+            this.data.backToBackScore += scoreData.score
+        }
     } else {
         this.data[type]++
     }
