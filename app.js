@@ -196,12 +196,6 @@ function App() {
     this.pressing = {}
 }
 
-App.prototype.focus = function () {
-    if (!document.hasFocus()) {
-        window.focus()
-    }
-}
-
 App.prototype.animate = function () {
     window.requestAnimationFrame(this.animate.bind(this))
     this.board.animate()
@@ -275,7 +269,6 @@ App.prototype.onKeyUp = function (e) {
 }
 
 App.prototype.togglePause = function () {
-    this.focus()
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.board.state = BOARD_STATE.PAUSED
         this.pauseBTN.className = BUTTON_STATE.ON
@@ -298,15 +291,14 @@ App.prototype.reset = function () {
 }
 
 App.prototype.setGravity = function () {
-    if (this.board.state == BOARD_STATE.PLAYING) {
-        this.togglePause()
-    }
     var gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).', this.gravity))
-    this.focus()
     if (gravity != NaN && gravity >= 1 && gravity <= 20) {
         this.gravity = gravity
         this.board.config(gravity, this.ghost)
         setTextContent(this.gravityDisplay, gravity)
+    }
+    if (this.board.state == BOARD_STATE.PLAYING) {
+        this.togglePause()
     }
 }
 
