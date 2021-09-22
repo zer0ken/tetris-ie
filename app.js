@@ -662,12 +662,15 @@ Board.prototype.land = function () {
         var block = shape[i];
         var row = this.falling.row + block.row
         var col = this.falling.col + block.col
-        if (--this.board[row].blanks == 0) {
-            cleared.push(row)
+        if (row >= 0) {
+            if (--this.board[row].blanks == 0) {
+                cleared.push(row)
+            }
+            var td = this.board[row][col]
+            td.blocked = true
+        } else {
+            over = true
         }
-        var td = this.board[row][col]
-        over = over || row < 3
-        td.blocked = true
     }
     for (var i = 0; i < cleared.length; i++) {
         for (var row = cleared[i]; row > 0; row--) {
@@ -1045,7 +1048,7 @@ function block(row, col) {
 }
 
 function isInBoard(row, col) {
-    return row >= 0 && row < BOARD_ROW && col >= 0 && col < BOARD_COL
+    return row < BOARD_ROW && col >= 0 && col < BOARD_COL
 }
 
 function Tetrimino(row, col) {
@@ -1080,7 +1083,7 @@ Tetrimino.prototype.isObstructed = function (board, rotationOffset, rowOffset, c
         var block = shape[i];
         var row = this.row + block.row + rowOffset
         var col = this.col + block.col + colOffset
-        if (!isInBoard(row, col) || board[row][col].blocked) {
+        if (!isInBoard(row, col) || (row >= 0 && board[row][col].blocked)) {
             return true
         }
     }
@@ -1115,9 +1118,11 @@ Tetrimino.prototype.draw = function (board) {
         var block = shape[i];
         var row = this.row + block.row
         var col = this.col + block.col
-        var td = board[row][col]
-        if (td.className != this.type) {
-            td.className = this.type
+        if (row >= 0) {
+            var td = board[row][col]
+            if (td.className != this.type) {
+                td.className = this.type
+            }
         }
     }
 }
@@ -1128,9 +1133,11 @@ Tetrimino.prototype.erase = function (board) {
         var block = shape[i];
         var row = this.row + block.row
         var col = this.col + block.col
-        var td = board[row][col]
-        if (td.className == this.type) {
-            td.className = td.originalClass
+        if (row >= 0) {
+            var td = board[row][col]
+            if (td.className == this.type) {
+                td.className = td.originalClass
+            }
         }
     }
 }
