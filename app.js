@@ -490,6 +490,13 @@ var SCORE_OBJECT = {
     COMBO: function (lastCombo) {
         return {
             type: SCORE_TYPE.COMBO, score: 50 * lastCombo, count: lastCombo,
+            tier: lastCombo >= 20
+                ? 'aqua'
+                : lastCombo >= 15
+                    ? 'gold'
+                    : lastCombo >= 10
+                        ? 'silver'
+                        : '',
             description: function () { return 'COMBO ×' + lastCombo + ' +' + this.score }
         }
     },
