@@ -315,9 +315,10 @@ App.prototype.openStatistics = function () {
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.togglePause()
     }
-    if (!this.statisticsWindow) {
-        this.statisticsWindow = window.open('', '통계', 'top=100, left=280, width=400, height=700, status=no, menubar=no, toolbar=no, resizable=no')
+    if (this.statisticsWindow) {
+        this.statisticsWindow.close()
     }
+    this.statisticsWindow = window.open('', '통계', 'top=100, left=280, width=400, height=700, status=no, menubar=no, toolbar=no, resizable=no')
     this.statisticsWindow.document.body.innerHTML = this.board.statistics.toString()
     this.statisticsWindow.focus()
 }
@@ -679,12 +680,8 @@ Board.prototype.land = function () {
             for (var col = 0; col < BOARD_COL; col++) {
                 var tdAbove = rowAbove[col]
                 var td = clearedRow[col]
-                if (tdAbove.blocked) {
-                    td.blocked = tdAbove.blocked
-                    tdAbove.blocked = false
-                } else {
-                    td.blocked = false
-                }
+                td.blocked = tdAbove.blocked
+                tdAbove.blocked = false
                 td.className = tdAbove.className != 'over' ? tdAbove.className : td.originalClass
                 tdAbove.className = tdAbove.originalClass
             }
