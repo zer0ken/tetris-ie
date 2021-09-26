@@ -685,7 +685,7 @@ Board.prototype.land = function () {
                 } else {
                     td.blocked = false
                 }
-                td.className = row == 3 ? td.originalClass : tdAbove.className
+                td.className = tdAbove.className != 'over' ? tdAbove.className : td.originalClass
                 tdAbove.className = tdAbove.originalClass
             }
         }
