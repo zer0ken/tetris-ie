@@ -348,7 +348,7 @@ var BOARD_STATE = {
 var FPS = 60
 
 var DAS_SCALE = 20
-
+var LOCKDOWN_DELAY = 30
 var MIN_DAS = 10
 var BOARD_ROW = 23
 var BOARD_COL = 10
@@ -809,6 +809,12 @@ Board.prototype.updateGhost = function () {
     this.ghost.draw(this.board)
 }
 
+Board.prototype.setLockdownDelay = function () {
+    if (this.falling.isObstructed(this.board, 0, 1, 0)) {
+        this.leftFrames = LOCKDOWN_DELAY
+    }
+}
+
 Board.prototype.softDrop = function () {
     if (!this.falling.isObstructed(this.board, 0, 1, 0)) {
         this.falling.erase(this.board)
@@ -841,6 +847,7 @@ Board.prototype.move = function (delta) {
         this.falling.erase(this.board)
         this.falling.col += delta
         this.updateGhost()
+        this.setLockdownDelay()
         this.falling.draw(this.board)
         this.kicked = false
     }
@@ -851,6 +858,7 @@ Board.prototype.rotate = function (delta) {
     var rotated = this.falling.rotate(this.board, delta)
     if (rotated) {
         this.updateGhost()
+        this.setLockdownDelay()
         this.kicked = rotated
     }
     this.falling.draw(this.board)
