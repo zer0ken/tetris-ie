@@ -677,6 +677,7 @@ Board.prototype.land = function () {
             var rowAbove = this.board[row - 1]
             var clearedRow = this.board[row]
             clearedRow.blanks = rowAbove.blanks
+            rowAbove.blanks = BOARD_COL
             for (var col = 0; col < BOARD_COL; col++) {
                 var tdAbove = rowAbove[col]
                 var td = clearedRow[col]
