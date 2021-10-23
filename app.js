@@ -90,10 +90,9 @@ function getTextContent(el) {
     }
 
     // window.requestAnimationFrame
-    if (!window.requestAnimationFrame) {
-        window.requestAnimationFrame = function (callback) {
-            setTimeout(callback, 1000 / FPS)
-        }
+
+    window.requestAnimationFrame = function (callback) {
+        setTimeout(callback, 1000 / FPS)
     }
 
     // Object.keys
@@ -130,7 +129,8 @@ var CONTROLS = {
     HOLD: 6,
     PAUSE: 7,
     RESET: 8,
-    STATISTICS: 9
+    STATISTICS: 9,
+    MODE: 11
 }
 
 var KEYMAP = {
@@ -147,7 +147,8 @@ var KEYMAP = {
     27: CONTROLS.PAUSE,
     81: CONTROLS.PAUSE,
     82: CONTROLS.RESET,
-    83: CONTROLS.STATISTICS
+    83: CONTROLS.STATISTICS,
+    77: CONTROLS.MODE
 }
 
 var BUTTON_STATE = {
@@ -162,15 +163,9 @@ var DAY_NIGHT = {
 
 function App() {
     this.paused = false
-    this.gravity = 1
+    this.gravity = 0
     this.ghost = true
-
-    window.addEventListener('keydown', this.onKeyDown.bind(this), false)
-    window.addEventListener('keyup', this.onKeyUp.bind(this), false)
-
-    window.requestAnimationFrame(this.animate.bind(this))
-
-    this.board = new Board(this.gravity, this.ghost)
+    this.mode = GAME_MODE.MARATHON
 
     this.pauseBTN = document.getElementById('pause')
     this.pauseBTN.onclick = this.togglePause.bind(this)
@@ -182,7 +177,7 @@ function App() {
     this.statisticsBTN.onclick = this.openStatistics.bind(this)
 
     this.gravityBTN = document.getElementById('gravity')
-    this.gravityBTN.onclick = this.setGravity.bind(this)
+    this.gravityBTN.onclick = this.inputGravity.bind(this)
     this.gravityDisplay = document.getElementById('gravity-value')
 
     this.ghostBTN = document.getElementById('ghost')
@@ -193,7 +188,19 @@ function App() {
     this.dayBTN.onclick = this.toggleDayMode.bind(this)
     this.dayDisplay = document.getElementById('day-value')
 
+    this.modeBTN = document.getElementById('mode')
+    this.modeBTN.onclick = this.toggleGameMode.bind(this)
+    this.modeDisplay = document.getElementById('mode-value')
+
+    this.marathonDiv = document.getElementById('marathon')
+
+    this.board = new Board(this.gravity, this.ghost, this.mode)
+
     this.pressing = {}
+
+    window.addEventListener('keydown', this.onKeyDown.bind(this), false)
+    window.addEventListener('keyup', this.onKeyUp.bind(this), false)
+    window.requestAnimationFrame(this.animate.bind(this))
 }
 
 App.prototype.animate = function () {
@@ -213,8 +220,8 @@ App.prototype.animate = function () {
                 || keymap == CONTROLS.MOVE_RIGHT
                 || keymap == CONTROLS.SOFT_DROP) {
                 this.pressing[key]++
-                if (this.pressing[key] >= this.board.das) {
-                    this.pressing[key] -= Math.max(this.board.das / DAS_SCALE, 1)
+                if (this.pressing[key] >= DAS) {
+                    this.pressing[key] = AFTER_DAS
                     this.control(KEYMAP[key])
                 }
             }
@@ -240,6 +247,8 @@ App.prototype.control = function (control) {
     } else if (control == CONTROLS.STATISTICS) {
         this.pressing = {}
         this.openStatistics()
+    } else if (control == CONTROLS.MODE) {
+        this.toggleGameMode()
     }
     if (this.board.state == BOARD_STATE.PLAYING) {
         if (control == CONTROLS.MOVE_LEFT) {
@@ -284,18 +293,24 @@ App.prototype.togglePause = function () {
 
 App.prototype.reset = function () {
     if (this.board.state != BOARD_STATE.PLAYING) {
+        if (this.mode == GAME_MODE.MARATHON) {
+            this.gravity = 0
+            this.board.config(this.gravity, this.ghost, this.mode)
+        }
         this.board.init()
     } else {
         this.togglePause()
     }
 }
 
-App.prototype.setGravity = function () {
-    var gravity = parseInt(window.prompt('Input New Gravity(1 ~ 20).', this.gravity))
-    if (gravity != NaN && gravity >= 1 && gravity <= 20) {
+App.prototype.inputGravity = function () {
+    if (this.mode == GAME_MODE.MARATHON) {
+        return
+    }
+    var gravity = parseInt(window.prompt('Input New Gravity(0 ~ ' + MAX_GRAVITY + ').', this.gravity))
+    if (gravity != NaN && gravity >= 0 && gravity <= MAX_GRAVITY) {
         this.gravity = gravity
-        this.board.config(gravity, this.ghost)
-        setTextContent(this.gravityDisplay, gravity)
+        this.board.config(gravity, this.ghost, this.mode)
     }
     if (this.board.state == BOARD_STATE.PLAYING) {
         this.togglePause()
@@ -308,7 +323,7 @@ App.prototype.toggleGhost = function () {
     }
     this.ghost = !this.ghost
     setTextContent(this.ghostDisplay, this.ghost ? 'ON' : 'OFF')
-    this.board.config(this.gravity, this.ghost)
+    this.board.config(this.gravity, this.ghost, this.mode)
 }
 
 App.prototype.openStatistics = function () {
@@ -336,6 +351,25 @@ App.prototype.toggleDayMode = function () {
     }
 }
 
+App.prototype.toggleGameMode = function () {
+    if (this.board.state == BOARD_STATE.PLAYING) {
+        this.togglePause()
+    } else {
+        this.pressing = {}
+        this.board.init()
+        this.mode = this.mode == GAME_MODE.INFINITE ? GAME_MODE.MARATHON : GAME_MODE.INFINITE
+        this.board.config(0, this.ghost, this.mode)
+        setTextContent(this.modeDisplay, this.mode)
+        if (this.mode == GAME_MODE.MARATHON) {
+            this.modeBTN.className = BUTTON_STATE.ON
+            this.marathonDiv.style.display = 'block'
+        } else {
+            this.modeBTN.className = BUTTON_STATE.OFF
+            this.marathonDiv.style.display = 'none'
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Board
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -346,13 +380,38 @@ var BOARD_STATE = {
     PAUSED: 2
 }
 
-var FPS = 60
+var FPS = 60.0988
 
-var DAS_SCALE = 20
-var LOCKDOWN_DELAY = 30
-var MIN_DAS = 10
+var DAS = 14
+var AFTER_DAS = 12
+var LOCKDOWN_DELAY = [
+    48, 43, 38, 33, 28, 23, 18, 13, 8, 6,
+    5, 5, 5, 4, 4, 4, 3, 3, 3, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 1
+]
 var BOARD_ROW = 23
 var BOARD_COL = 10
+var FPT = [
+    48, 43, 38, 33, 28, 23, 18, 13, 8, 6,
+    5, 5, 5, 4, 4, 4, 3, 3, 3, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 1
+]
+var MAX_GRAVITY = 29
+var GAME_MODE = {
+    INFINITE: 'INFINITE',
+    MARATHON: 'MARATHON'
+}
+var LCD = 20
+
+function getARE(line) {
+    var height = (BOARD_ROW - line)
+    return height <= 2 ? 10 : 10 + height * 2
+}
+
+function getLeftLines(gravity) {
+    // return Math.min(gravity * 10 + 10, Math.max(100, gravity * 10 - 50))
+    return 1
+}
 
 var SCORE_TYPE = {
     DROP: 20,
@@ -528,8 +587,9 @@ var PERFECT_CLEAR_SCORE = {
     4: SCORE_OBJECT.PERFECT_CLEAR_TETRIS
 }
 
-function Board(gravity, ghost) {
-    this.config(gravity, ghost)
+function Board(gravity, ghost, mode) {
+    this.gravityDisplay = document.getElementById('gravity-value')
+    this.config(gravity, ghost, mode)
 
     this.boardTable = nodeListToArray(
         nodeListToArray(
@@ -546,6 +606,10 @@ function Board(gravity, ghost) {
     this.scoreList = nodeListToArray(document.getElementById('score-list').childNodes)
 
     this.statistics = new Statistics
+
+    this.levelDisplay = document.getElementById('level-value')
+    this.lineDisplay = document.getElementById('line-value')
+    this.level = document.getElementById('level')
 
     this.init()
 }
@@ -578,6 +642,11 @@ Board.prototype.init = function () {
         this.board.push(row)
     }
     this.leftFrames = 0
+    this.leftLines = getLeftLines(this.gravity)
+    this.extraFrames = 0
+
+    setTextContent(this.levelDisplay, this.gravity)
+    setTextContent(this.lineDisplay, this.leftLines)
 
     this.queue.init()
 
@@ -591,26 +660,37 @@ Board.prototype.init = function () {
     this.statistics.init()
 }
 
-Board.prototype.config = function (gravity, ghost) {
-    if (gravity) {
-        this.gravity = gravity
-        this.framePerTick = FPS / (.5 + gravity / 2)
-        this.das = Math.max(this.framePerTick / 5, MIN_DAS)
-        this.leftFrames = this.framePerTick
+Board.prototype.config = function (gravity, ghost, mode) {
+    if (typeof gravity == 'number') {
+        console.log(this.gravity)
+        this.setGravity(gravity)
+        console.log(this.gravity)
+    }
+    if (mode) {
+        this.mode = mode
     }
     this.ghostMode = ghost
     this.updateGhost()
+}
+
+Board.prototype.setGravity = function (gravity) {
+    this.gravity = gravity
+    this.framePerTick = FPT[gravity]
+    setTextContent(this.gravityDisplay, this.gravity)
 }
 
 Board.prototype.animate = function () {
     if (this.state != BOARD_STATE.PLAYING) {
         return
     }
-
     this.leftFrames--
     if (this.leftFrames <= 0) {
         this.tick()
         this.leftFrames += this.framePerTick
+        if (this.extraFrames) {
+            this.leftFrames += this.extraFrames
+            this.extraFrames = 0
+        }
     }
 }
 
@@ -657,11 +737,15 @@ Board.prototype.land = function () {
             isTSpin = T_SPIN_STATE.T_SPIN
         }
     }
+    var lockedRow = 0
     var cleared = []
     for (var i = 0; i < shape.length; i++) {
         var block = shape[i];
         var row = this.falling.row + block.row
         var col = this.falling.col + block.col
+        if (lockedRow < row) {
+            lockedRow = row
+        }
         if (row >= 0) {
             if (--this.board[row].blanks == 0) {
                 cleared.push(row)
@@ -692,6 +776,24 @@ Board.prototype.land = function () {
         this.state = BOARD_STATE.DEAD
     }
     this.holdSwapped = false
+    this.extraFrames += getARE(lockedRow)
+    if (cleared.length) {
+        this.extraFrames += LCD
+    }
+
+    // setting level
+    if (this.mode == GAME_MODE.MARATHON) {
+        this.leftLines -= cleared.length
+        if (this.leftLines <= 0 && this.gravity < MAX_GRAVITY) {
+            this.leftLines += getLeftLines(this.gravity)
+            var level = this.level
+            level.className = 'on'
+            setTimeout(function () {
+                level.className = undefined
+            }, 500)
+            this.setGravity(this.gravity + 1)
+        }
+    }
 
     // land score
     this.addScore(SCORE_OBJECT.LAND())
@@ -704,12 +806,12 @@ Board.prototype.land = function () {
                 ? T_SPIN_MINI_SCORE
                 : T_SPIN_SCORE
             primaryScore = scoreList[cleared.length]()
-            primaryScore.score *= this.gravity
+            primaryScore.score *= (this.gravity + 1)
             this.addScore(primaryScore)
         } else {
             // clear score
             primaryScore = LINE_SCORE[cleared.length]()
-            primaryScore.score *= this.gravity
+            primaryScore.score *= (this.gravity + 1)
             this.addScore(primaryScore)
         }
         // perfect clear score
@@ -717,7 +819,7 @@ Board.prototype.land = function () {
             var perfectClearScore = primaryScore.type == SCORE_TYPE.TETRIS && this.backToBack
                 ? SCORE_OBJECT.PERFECT_CLEAR_BACK_TO_BACK()
                 : PERFECT_CLEAR_SCORE[cleared.length]()
-            perfectClearScore.score *= this.gravity
+            perfectClearScore.score *= (this.gravity + 1)
             this.addScore(perfectClearScore)
         }
         // back-to-back score
@@ -734,7 +836,7 @@ Board.prototype.land = function () {
     if (cleared.length) {
         if (this.combo) {
             var comboScore = SCORE_OBJECT.COMBO(this.combo)
-            comboScore.score *= this.gravity
+            comboScore.score *= (this.gravity + 1)
             this.addScore(comboScore)
             this.combo++
         } else {
@@ -744,6 +846,8 @@ Board.prototype.land = function () {
         this.combo = 0
     }
     this.falling = null
+    setTextContent(this.levelDisplay, this.gravity)
+    setTextContent(this.lineDisplay, this.leftLines)
 }
 
 Board.prototype.initScore = function () {
@@ -808,12 +912,16 @@ Board.prototype.updateGhost = function () {
 }
 
 Board.prototype.setLockdownDelay = function () {
-    if (this.falling.isObstructed(this.board, 0, 1, 0)) {
-        this.leftFrames = LOCKDOWN_DELAY
+    if (this.falling.isObstructed(this.board, 0, 1, 0)
+        && this.leftFrames < this.framePerTick) {
+        this.leftFrames = this.framePerTick
     }
 }
 
 Board.prototype.softDrop = function () {
+    if (!this.falling) {
+        return
+    }
     if (!this.falling.isObstructed(this.board, 0, 1, 0)) {
         this.falling.erase(this.board)
         this.falling.row++
@@ -824,6 +932,9 @@ Board.prototype.softDrop = function () {
 }
 
 Board.prototype.hardDrop = function () {
+    if (!this.falling) {
+        return
+    }
     var isMovable = !this.falling.isObstructed(this.board, 0, 1, 0)
     if (isMovable) {
         var height = 0
@@ -836,11 +947,14 @@ Board.prototype.hardDrop = function () {
         this.addScore(SCORE_OBJECT.DROP(height))
         this.kicked = false
     }
-    this.land()
     this.leftFrames = 0
+    this.land()
 }
 
 Board.prototype.move = function (delta) {
+    if (!this.falling) {
+        return
+    }
     if (!this.falling.isObstructed(this.board, 0, 0, delta)) {
         this.falling.erase(this.board)
         this.falling.col += delta
@@ -852,6 +966,9 @@ Board.prototype.move = function (delta) {
 }
 
 Board.prototype.rotate = function (delta) {
+    if (!this.falling) {
+        return
+    }
     this.falling.erase(this.board)
     var rotated = this.falling.rotate(this.board, delta)
     if (rotated) {
@@ -864,6 +981,9 @@ Board.prototype.rotate = function (delta) {
 
 Board.prototype.hold = function () {
     if (this.holdSwapped) {
+        return
+    }
+    if (!this.falling) {
         return
     }
     this.falling.erase(this.board)
