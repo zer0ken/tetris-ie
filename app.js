@@ -392,9 +392,9 @@ var LOCKDOWN_DELAY = [
 var BOARD_ROW = 23
 var BOARD_COL = 10
 var FPT = [
-    48, 43, 38, 33, 28, 23, 18, 13, 8, 6,
-    5, 5, 5, 4, 4, 4, 3, 3, 3, 2,
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 1
+    48, 43, 38, 33, 28, 23, 18, 16, 15, 14,
+    13, 12, 11, 10, 9, 8, 7, 6, 5, 4,
+    4, 3, 3, 3, 2, 2, 2, 2, 2, 1
 ]
 var MAX_GRAVITY = 29
 var GAME_MODE = {
@@ -409,8 +409,7 @@ function getARE(line) {
 }
 
 function getLeftLines(gravity) {
-    // return Math.min(gravity * 10 + 10, Math.max(100, gravity * 10 - 50))
-    return 1
+    return Math.min(gravity * 10 + 10, Math.max(100, gravity * 10 - 50))
 }
 
 var SCORE_TYPE = {
@@ -662,9 +661,7 @@ Board.prototype.init = function () {
 
 Board.prototype.config = function (gravity, ghost, mode) {
     if (typeof gravity == 'number') {
-        console.log(this.gravity)
         this.setGravity(gravity)
-        console.log(this.gravity)
     }
     if (mode) {
         this.mode = mode
