@@ -782,13 +782,13 @@ Board.prototype.land = function () {
     if (this.mode == GAME_MODE.MARATHON) {
         this.leftLines -= cleared.length
         if (this.leftLines <= 0 && this.gravity < MAX_GRAVITY) {
+            this.setGravity(this.gravity + 1)
             this.leftLines += getLeftLines(this.gravity)
             var level = this.level
             level.className = 'on'
             setTimeout(function () {
                 level.className = undefined
             }, 500)
-            this.setGravity(this.gravity + 1)
         }
     }
 
