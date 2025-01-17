@@ -1,4 +1,4 @@
-# [<img src="./icon.png">](#) tetris-ie 
+# [<img height="16px" src="./icon.png">](#) tetris-ie 
 
 [<img width="360px" align="right" src="./ingame.png">](https://zer0ken.github.io/tetris-ie/)
 
