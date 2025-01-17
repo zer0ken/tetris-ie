@@ -1,6 +1,6 @@
-# tetris-ie
+# [<img src="./icon.png">](#) tetris-ie 
 
-[<img width="360px" align="right" src="./resources/ingame.png">](https://zer0ken.github.io/tetris-ie/)
+[<img width="360px" align="right" src="./ingame.png">](https://zer0ken.github.io/tetris-ie/)
 
 인터넷 익스플로러에서도 완벽히 동작하는 싱글 플레이어 테트리스!
 
