@@ -1,8 +1,12 @@
-# TETRIS-IE
+# tetris-ie
 
-인터넷 익스플로러에서 동작하는 싱글 플레이어 테트리스 게임.
+[<img width="360px" align="right" src="./resources/ingame.png">](https://zer0ken.github.io/tetris-ie/)
 
-## Controls
+인터넷 익스플로러에서도 완벽히 동작하는 싱글 플레이어 테트리스!
+
+🕹️ [지금 플레이해보세요!](https://zer0ken.github.io/tetris-ie/)
+
+### 조작법
 
 * 게임 내 조작
   * 우로 이동: `Arrow Right`
