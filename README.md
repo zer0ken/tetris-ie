@@ -19,6 +19,3 @@
 * 일시정지: `Q Key`, `Esc`
 * 초기화: `R Key`
 * 통계: `S Key`
-
----
-<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fzer0ken%2Ftetris-ie&count_bg=%23303245&title_bg=%23292D3E&icon=&title=hits&edge_flat=false"/>
