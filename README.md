@@ -11,11 +11,11 @@
 * 게임 내 조작
   * 우로 이동: `Arrow Right`
   * 좌로 이동: `Arrow Left`
-  * 시계방향 회전: `Arrow Up`, `X Key`
+  * 시계방향 회전: `X Key`
   * 반시계방향 회전: `Left Ctrl`, `Z Key`
-  * 홀드: `Left Shift`, `C Key`
+  * 홀드: `Left Shift`, `C Key`, `Space`
   * 소프트 드랍: `Arrow Down`
-  * 하드 드랍: `Space`
+  * 하드 드랍: `Arrow Up`
 * 일시정지: `Q Key`, `Esc`
 * 초기화: `R Key`
 * 통계: `S Key`
